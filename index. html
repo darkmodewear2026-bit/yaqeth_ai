@@ -2,192 +2,57 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Yaqeth AI - نظام يقظ</title>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>يقظ - Yaqeth AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
     <style>
-        body { background: #050505; color: white; font-family: sans-serif; text-align: center; margin: 0; }
-        #video, #outputCanvas { width: 95%; max-width: 400px; transform: scaleX(-1); border-radius: 20px; border: 3px solid #38bdf8; margin-top: 10px; }
-        .ui-container { background: #111; padding: 15px; border-radius: 15px; margin: 10px; }
-        .menu-btn { position: fixed; top: 20px; left: 20px; font-size: 30px; cursor: pointer; color: #38bdf8; z-index: 1000; }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; padding-top: 50px; }
+        /* التصميم العام (الوضع الليلي) */
+        body { background: #050505; color: #fff; font-family: 'Segoe UI', Tahoma, sans-serif; text-align: center; margin: 0; padding: 0; }
+        #video { width: 100%; max-width: 500px; border-radius: 20px; border: 3px solid #38bdf8; transform: scaleX(-1); margin-top: 20px; }
+        
+        /* القائمة الجانبية */
+        .menu { position: fixed; top: 15px; left: 20px; font-size: 30px; cursor: pointer; color: #38bdf8; }
+        .sidebar { display: none; position: fixed; top: 0; left: 0; width: 250px; height: 100%; background: #111; padding: 20px; box-shadow: 2px 0 10px rgba(0,0,0,0.5); z-index: 1000; }
+        .btn { display: block; background: #222; color: #fff; margin: 15px 0; padding: 15px; border-radius: 10px; cursor: pointer; text-decoration: none; border: 1px solid #444; }
+        .btn:hover { background: #38bdf8; color: #000; }
     </style>
 </head>
 <body>
 
-    <div class="menu-btn" onclick="toggleMenu()">☰</div>
-    <div id="menu" class="overlay">
-        <h2>القائمة الرئيسية</h2>
-        <div onclick="alert('النظام: 60 دقيقة مجاني')">1. السائق الخاص</div>
-        <div>2. سائق الشاحنات (اشتراك شركة)</div>
-        <div>3. التاكسي (اشتراك شركة)</div>
-        <div>4. باصات النقل (اشتراك شركة)</div>
-        <button onclick="toggleMenu()">إغلاق</button>
+    <div class="menu" onclick="toggleMenu()">☰</div>
+
+    <div id="sidebar" class="sidebar">
+        <h2 onclick="toggleMenu()" style="cursor: pointer;">إغلاق ×</h2>
+        <a class="btn">1. السائق الخاص (مجاني)</a>
+        <a class="btn">2. سائق الشاحنات (اشتراك)</a>
+        <a class="btn">3. التاكسي (اشتراك)</a>
+        <a class="btn">4. النقل الجماعي (اشتراك)</a>
     </div>
 
-    <h1>يقظ - Yaqeth AI</h1>
-    <video id="video" autoplay playsinline muted></video>
-    <canvas id="outputCanvas"></canvas>
-    
-    <div class="ui-container">
-        <div id="status">جاري التهيئة...</div>
-        <div id="timer">المجاني: 60 دقيقة</div>
-    </div>
+    <h1>نظام يقظ الذكي</h1>
+    <video id="video" autoplay playsinline></video>
+    <p id="status">جاري تشغيل الكاميرا...</p>
 
     <script>
-        const video = document.getElementById('video');
-        const alarm = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
-        
-        let eyesClosedCounter = 0;
-        let consecutiveAlarms = 0;
-
-        // 1. تشغيل صوت عند الفتح
-        window.onload = () => alarm.play();
-
-        async function initSystem() {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            video.srcObject = stream;
-
-            const model = await faceLandmarksDetection.createDetector(
-                faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh, 
-                { runtime: 'mediapipe', solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh' }
-            );
-
-            async function detect() {
-                const faces = await model.estimateFaces(video);
-                
-                if (faces.length > 0) {
-                    // منطق كشف العين والنعاس
-                    // ملاحظة: هنا نضع حساب EAR للعين (نسبة فتح العين)
-                    // إذا غلقت العين 3 ثواني:
-                    if (eyesClosedCounter >= 90) { 
-                        if (consecutiveAlarms < 3) {
-                            alarm.play();
-                            consecutiveAlarms++;
-                            logEventToCompany(); // إرسال بيانات للشركة
-                        } else {
-                            consecutiveAlarms = 0; // إعادة التصفير
-                        }
-                        eyesClosedCounter = 0;
-                    }
-                } else {
-                    document.getElementById('status').innerText = "⚠️ الوجه غير موجود";
-                }
-                requestAnimationFrame(detect);
-            }
-            detect();
-        }
-
-        function logEventToCompany() {
-            navigator.geolocation.getCurrentPosition(pos => {
-                console.log("إرسال للشركة: نعاس في الموقع", pos.coords.latitude, pos.coords.longitude);
-                // هنا يتم الربط بـ Firebase لإرسال الإشعار
-            });
-        }
-
         function toggleMenu() {
-            const menu = document.getElementById('menu');
-            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            const side = document.getElementById('sidebar');
+            side.style.display = (side.style.display === 'block') ? 'none' : 'block';
         }
 
-        initSystem();
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>Yaqeth AI - نظام يقظ</title>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <style>
-        body { background: #050505; color: white; font-family: sans-serif; text-align: center; margin: 0; }
-        #video, #outputCanvas { width: 95%; max-width: 400px; transform: scaleX(-1); border-radius: 20px; border: 3px solid #38bdf8; margin-top: 10px; }
-        .ui-container { background: #111; padding: 15px; border-radius: 15px; margin: 10px; }
-        .menu-btn { position: fixed; top: 20px; left: 20px; font-size: 30px; cursor: pointer; color: #38bdf8; z-index: 1000; }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; padding-top: 50px; }
-    </style>
-</head>
-<body>
-
-    <div class="menu-btn" onclick="toggleMenu()">☰</div>
-    <div id="menu" class="overlay">
-        <h2>القائمة الرئيسية</h2>
-        <div onclick="alert('النظام: 60 دقيقة مجاني')">1. السائق الخاص</div>
-        <div>2. سائق الشاحنات (اشتراك شركة)</div>
-        <div>3. التاكسي (اشتراك شركة)</div>
-        <div>4. باصات النقل (اشتراك شركة)</div>
-        <button onclick="toggleMenu()">إغلاق</button>
-    </div>
-
-    <h1>يقظ - Yaqeth AI</h1>
-    <video id="video" autoplay playsinline muted></video>
-    <canvas id="outputCanvas"></canvas>
-    
-    <div class="ui-container">
-        <div id="status">جاري التهيئة...</div>
-        <div id="timer">المجاني: 60 دقيقة</div>
-    </div>
-
-    <script>
-        const video = document.getElementById('video');
-        const alarm = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
-        
-        let eyesClosedCounter = 0;
-        let consecutiveAlarms = 0;
-
-        // 1. تشغيل صوت عند الفتح
-        window.onload = () => alarm.play();
-
-        async function initSystem() {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            video.srcObject = stream;
-
-            const model = await faceLandmarksDetection.createDetector(
-                faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh, 
-                { runtime: 'mediapipe', solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh' }
-            );
-
-            async function detect() {
-                const faces = await model.estimateFaces(video);
-                
-                if (faces.length > 0) {
-                    // منطق كشف العين والنعاس
-                    // ملاحظة: هنا نضع حساب EAR للعين (نسبة فتح العين)
-                    // إذا غلقت العين 3 ثواني:
-                    if (eyesClosedCounter >= 90) { 
-                        if (consecutiveAlarms < 3) {
-                            alarm.play();
-                            consecutiveAlarms++;
-                            logEventToCompany(); // إرسال بيانات للشركة
-                        } else {
-                            consecutiveAlarms = 0; // إعادة التصفير
-                        }
-                        eyesClosedCounter = 0;
-                    }
-                } else {
-                    document.getElementById('status').innerText = "⚠️ الوجه غير موجود";
-                }
-                requestAnimationFrame(detect);
+        // تشغيل الكاميرا
+        async function startCamera() {
+            try {
+                const video = document.getElementById('video');
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                document.getElementById('status').innerText = "✅ النظام يعمل - يقظ يراقبك";
+            } catch (err) {
+                document.getElementById('status').innerText = "❌ تعذر الوصول للكاميرا";
             }
-            detect();
         }
-
-        function logEventToCompany() {
-            navigator.geolocation.getCurrentPosition(pos => {
-                console.log("إرسال للشركة: نعاس في الموقع", pos.coords.latitude, pos.coords.longitude);
-                // هنا يتم الربط بـ Firebase لإرسال الإشعار
-            });
-        }
-
-        function toggleMenu() {
-            const menu = document.getElementById('menu');
-            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-        }
-
-        initSystem();
+        startCamera();
     </script>
 </body>
 </html>
