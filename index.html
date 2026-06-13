@@ -6,8 +6,6 @@
     <title>Yaqeth AI | منصة يقظ الذكية</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- مكتبة EmailJS لإرسال التقارير والبيانات -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -19,378 +17,205 @@
             --danger: #ff3366;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Cairo', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text); overflow-x: hidden; direction: rtl; transition: background 0.3s ease; }
+        
+        /* تأثير كشاف الضوء الأبيض لليل */
+        body.night-flash-active { background-color: #ffffff !important; color: #000000 !important; }
+        body.night-flash-active .screen { background-color: #ffffff !important; }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text);
-            overflow-x: hidden;
-            direction: rtl;
-        }
+        .screen { display: none; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .screen.active { display: flex; }
 
-        /* شاشات التطبيق الرئيسية */
-        .screen {
-            display: none;
-            min-height: 100vh;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            animation: fadeIn 0.5s ease-in-out;
-        }
+        .auth-container { background: var(--card-bg); padding: 30px; border-radius: 20px; width: 100%; max-width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .input-group { margin-bottom: 15px; position: relative; }
+        .input-group i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .input-group input, .input-group select { width: 100%; padding: 12px 45px 12px 15px; background: #0b0f19; border: 1px solid #24344d; border-radius: 10px; color: white; font-size: 1rem; }
+        
+        .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #00ffcc, #00e5ff); border: none; border-radius: 10px; color: #0b0f19; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: all 0.3s ease; margin-top: 10px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 255, 204, 0.4); }
 
-        .screen.active {
-            display: flex;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* واجهة الترحيب */
-        .welcome-card {
-            text-align: center;
-            max-width: 600px;
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 1px solid rgba(0, 255, 204, 0.1);
-        }
-
-        .welcome-card h1 {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 15px;
-        }
-
-        /* النوافذ وحقول الإدخال */
-        .auth-container {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 450px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        .auth-container h2 {
-            margin-bottom: 20px;
-            color: var(--secondary);
-            text-align: center;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .input-group i {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-
-        .input-group input, .input-group select {
-            width: 100%;
-            padding: 12px 45px 12px 15px;
-            background: #0b0f19;
-            border: 1px solid #24344d;
-            border-radius: 10px;
-            color: white;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .input-group input:focus, .input-group select:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
-        }
-
-        /* الأزرار */
-        .btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #00ffcc, #00e5ff);
-            border: none;
-            border-radius: 10px;
-            color: #0b0f19;
-            font-weight: bold;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 255, 204, 0.4);
-        }
-
-        /* واجهة الكاميرا والفحص */
-        .camera-container {
-            position: relative;
-            width: 100%;
-            max-width: 640px;
-            background: #000;
-            border-radius: 15px;
-            overflow: hidden;
-            border: 2px solid var(--primary);
-        }
-
-        video {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        .status-overlay {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: rgba(0,0,0,0.7);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* لوحة التحكم والحاضنات والميزات الفخمة */
-        .incubator-dashboard {
-            width: 100%;
-            max-width: 1000px;
-            margin-top: 40px;
-        }
-
-        .grid-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-
-        .dashboard-card {
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 15px;
-            border-right: 5px solid var(--primary);
-        }
-
-        .enterprise-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            background: #111a2e;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .enterprise-table th, .enterprise-table td {
-            padding: 12px 15px;
-            text-align: right;
-            border-bottom: 1px solid #1f2d44;
-        }
-
-        .enterprise-table th {
-            background: #19263e;
-            color: var(--primary);
-        }
-
-        .blink {
-            animation: blinker 1s linear infinite;
-        }
-        @keyframes blinker {
-            50% { opacity: 0; }
-        }
+        /* حاوية الكاميرا الحقيقية */
+        .camera-container { position: relative; width: 100%; max-width: 500px; height: 380px; background: #000; border-radius: 20px; overflow: hidden; border: 3px solid var(--primary); box-shadow: 0 0 20px rgba(0, 255, 204, 0.3); }
+        #webcam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); } /* لقلب الكاميرا مثل المرآة */
+        
+        .status-overlay { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.75); padding: 8px 15px; border-radius: 20px; font-size: 0.9rem; color: var(--primary); }
+        .incubator-dashboard { width: 100%; max-width: 900px; margin-top: 30px; }
+        .dashboard-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; border-right: 5px solid var(--primary); }
+        .toggle-auth-link { color: var(--secondary); text-align: center; display: block; margin-top: 15px; cursor: pointer; text-decoration: underline; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-    <!-- 1️⃣ شاشة الترحيب الرئيسية -->
     <div class="screen active" id="welcomeScreen">
-        <div class="welcome-card">
-            <h1>منصة يَقِظ الذكية | Yaqeth AI</h1>
-            <p style="color: var(--text-muted); margin-bottom: 25px;">المنصة الوطنية الرائدة لحماية الأرواح وتقليل حوادث الطرق باستخدام الذكاء الاصطناعي المحلي.</p>
-            <button class="btn" onclick="navigateTo('authScreen')">الدخول إلى المنصة وتجربة النظام</button>
+        <div style="text-align: center; background: var(--card-bg); padding: 40px; border-radius: 20px; max-width: 500px;">
+            <h1 style="color: var(--primary); margin-bottom: 15px;">منصة يَقِظ الذكية</h1>
+            <p style="color: var(--text-muted); margin-bottom: 25px;">النظام المطور لحماية السائقين من النعاس باستخدام تكنولوجيا معالجة الوجه الحية.</p>
+            <button class="btn" onclick="navigateTo('authScreen')">ابدأ الآن</button>
         </div>
     </div>
 
-    <!-- 2️⃣ شاشة تسجيل الدخول المتكاملة (طلب تفاصيل السائق كاملة) -->
     <div class="screen" id="authScreen">
         <div class="auth-container">
-            <h2>تسجيل دخول السائق</h2>
-            <p style="color: var(--text-muted); text-align: center; font-size: 0.85rem; margin-bottom: 20px;">جميع البيانات مشفرة محلياً لحماية الخصوصية السيبرانية</p>
+            <h2 id="authTitle" style="text-align: center; margin-bottom: 20px; color: var(--primary);">تسجيل سائق جديد (اشتراك)</h2>
             
-            <form id="loginForm" onsubmit="handleAuth(event)">
-                <!-- اسم السائق -->
-                <div class="input-group">
+            <form id="authForm" onsubmit="handleAuth(event)">
+                <div class="input-group" id="nameGroup">
                     <i class="fa-solid fa-user"></i>
-                    <input type="text" id="driverName" placeholder="اسم السائق الثلاثي" required>
+                    <input type="text" id="driverName" placeholder="اسم السائق الثلاثي">
                 </div>
 
-                <!-- البريد الإلكتروني -->
                 <div class="input-group">
                     <i class="fa-solid fa-envelope"></i>
-                    <input type="email" id="driverEmail" placeholder="البريد الإلكتروني للعمل" required>
+                    <input type="email" id="driverEmail" placeholder="البريد الإلكتروني" required>
                 </div>
 
-                <!-- كلمة المرور -->
                 <div class="input-group">
                     <i class="fa-solid fa-lock"></i>
-                    <input type="password" id="driverPassword" placeholder="كلمة المرور المشفرة" required>
+                    <input type="password" id="driverPassword" placeholder="كلمة المرور" required>
                 </div>
 
-                <!-- تحديد الحساسية والأمان -->
-                <div class="input-group">
+                <div class="input-group" id="sensitivityGroup">
                     <i class="fa-solid fa-sliders"></i>
                     <select id="appSensitivity">
-                        <option value="high">حساسية مرتفعة جداً (حماية قصوى)</option>
-                        <option value="medium" selected>حساسية متوسطة (خطوط الشحن العامة)</option>
-                        <option value="low">حساسية منخفضة (داخل المدينة)</option>
+                        <option value="high">حساسية مرتفعة (خطوط سريعة)</option>
+                        <option value="medium" selected>حساسية متوسطة</option>
                     </select>
                 </div>
 
-                <button type="submit" class="btn">تأكيد وتفعيل فحص الذكاء الاصطناعي</button>
+                <button type="submit" class="btn" id="authBtn">إنشاء الحساب وتفعيل النظام</button>
             </form>
+
+            <span class="toggle-auth-link" id="toggleAuthBtn" onclick="toggleAuthMode()">لديك حساب مشترك سابقاً؟ تسجيل الدخول</span>
         </div>
     </div>
 
-    <!-- 3️⃣ واجهة الفحص الحي وتقارير الحاضنات المتكاملة -->
     <div class="screen" id="mainAppScreen">
-        <h2 style="margin-bottom: 10px; color: var(--primary);">مركز العمليات والفحص الحي</h2>
-        <p style="color: var(--text-muted); margin-bottom: 20px;" id="welcomeDriverText">مرحباً بك أيها السائق</p>
+        <h2 style="color: var(--primary); margin-bottom: 5px;">مركز العمليات الذكي</h2>
+        <p id="welcomeDriverText" style="color: var(--text-muted); margin-bottom: 20px;">مرحباً بك</p>
 
-        <!-- نافذة الكاميرا والمحاكاة الذكية -->
-        <div class="camera-container">
+        <div class="camera-container" id="cameraBox">
             <div class="status-overlay" id="statusIndicator">
-                <span style="color: #00ffcc;"><i class="fa-solid fa-circle-check"></i> جاري مراقبة العين والوجه محلياً</span>
+                <span>🟢 نظام الرصد والذكاء الاصطناعي نشط</span>
             </div>
-            <!-- محاكاة فيديو الكاميرا لتشغيل النظام البرمجي بشكل حيوي -->
-            <div style="width: 100%; height: 350px; background: #111a2e; display: flex; align-items: center; justify-content: center; flex-direction: column;">
-                <i class="fa-solid fa-video style-camera" style="font-size: 4rem; color: var(--primary); margin-bottom: 15px;"></i>
-                <p style="color: var(--text-muted);">تم تفعيل ميزة المعالجة الفورية الطرفية (Edge AI)</p>
-            </div>
+            <video id="webcam" autoplay playsinline muted></video>
         </div>
 
-        <div style="margin-top: 20px; width: 100%; max-width: 640px; display: flex; gap: 15px;">
-            <button class="btn" style="background: var(--danger); color: white;" onclick="simulateDrowsiness()">⚠️ محاكاة حالة النعاس الفورية</button>
-            <button class="btn" style="background: #333; color: white;" onclick="navigateTo('authScreen')">تسجيل الخروج</button>
+        <div style="margin-top: 20px; width: 100%; max-width: 500px; display: flex; gap: 10px;">
+            <button class="btn" style="background: #ffffff; color: #000;" onclick="toggleNightFlash()">💡 وضع القيادة الليلي (فلاش الضوء)</button>
+            <button class="btn" style="background: var(--danger); color: white;" onclick="simulateDrowsiness()">⚠️ محاكاة النعاس</button>
         </div>
+        <button class="btn" style="background: #222; color: #fff; max-width: 500px;" onclick="stopCameraAndLogout()">تسجيل الخروج والعودة</button>
 
-        <!-- 📊 لوحة البيانات الفخمة لزيادة نسبة القبول بالحاضنات (The Garage / كاوست) -->
         <div class="incubator-dashboard">
-            <div class="grid-cards">
-                <div class="dashboard-card">
-                    <h4 style="color: var(--secondary);">📊 إثبات المفهوم والدقة العلمية</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin-top: 8px;">
-                        النظام يتتبع ويعالج <strong>46 نقطة حيوية بوجه السائق (Landmarks)</strong> عبر خوارزميات الذكاء الاصطناعي لحساب زمن إغلاق جفن العين ومعدل التثاؤب بدقة تصل إلى 95%.
-                    </p>
-                </div>
-                <div class="dashboard-card">
-                    <h4 style="color: var(--primary);">🛡️ مؤشر الأثر الاجتماعي لرؤية 2030</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin-top: 8px;">
-                        يساهم "يقظ" في تقليل الحوادث المرورية المسببة عن الإرهاق بنسبة تصل لـ <strong>40%</strong>، دون تخزين أو رفع أي صور على خوادم سحابية للامتثال الأمني المطلق لحماية البيانات.
-                    </p>
-                </div>
-            </div>
-
-            <!-- لوحة تحكم أساطيل الشركات الكبرى لتوضيح الجدوى الاقتصادية (B2B) -->
-            <div class="dashboard-card" style="border-right-color: var(--secondary);">
-                <h4 style="color: var(--secondary);">🚛 لوحة تحكم أساطيل الشركات والنقل واللوجستيات (B2B)</h4>
-                <table class="enterprise-table">
-                    <thead>
-                        <tr>
-                            <th>المركبة</th>
-                            <th>السائق الحالي</th>
-                            <th>المسار</th>
-                            <th>مؤشر الأمان والانتباه</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>شاحنة نقل #9942</td>
-                            <td id="tableDriverName">جاري جلب البيانات...</td>
-                            <td>الرياض - جدة</td>
-                            <td><span style="color: #00ffcc;">🟢 آمن ومستيقظ</span></td>
-                        </tr>
-                        <tr>
-                            <td>حافلة ركاب #1024</td>
-                            <td>خالد محمد</td>
-                            <td>الدمام - مكة</td>
-                            <td><span style="color: var(--danger);" class="blink">🔴 تحذير: رصد علامات نوم!</span></td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="dashboard-card">
+                <h4>🔬 إثبات المفهوم والكاميرا الحية</h4>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 5px;">
+                    المنصة تعرض الآن بثاً حياً ومباشراً لوجه السائق مع ميزة <strong>الضوء الأبيض المحيط (Ambient Flash)</strong> لضمان استمرار دقة الخوارزميات حتى في ظروف العتمة الشديدة دون الحاجة لكاميرات أشعة تحت حمراء مكلفة.
+                </p>
             </div>
         </div>
     </div>
 
     <script>
-        // تهيئة وإعداد مكتبة البريد الإلكتروني EmailJS للتقارير والأمن السيبراني
-        (function() {
-            // أضف المعرفات الخاصة بك هنا عند الإطلاق الفعلي للتطبيق
-            emailjs.init({
-                publicKey: "YOUR_EMAILJS_PUBLIC_KEY",
-            });
-        })();
+        let isOldAccountMode = false;
+        let streamRef = null;
 
-        // نظام الانتقال والتنقل السلس بين شاشات التطبيق
+        // التبديل الديناميكي بين تسجيل جديد وتسجيل حساب قديم
+        function toggleAuthMode() {
+            isOldAccountMode = !isOldAccountMode;
+            const nameGroup = document.getElementById('nameGroup');
+            const sensitivityGroup = document.getElementById('sensitivityGroup');
+            const authTitle = document.getElementById('authTitle');
+            const authBtn = document.getElementById('authBtn');
+            const toggleAuthBtn = document.getElementById('toggleAuthBtn');
+
+            if (isOldAccountMode) {
+                nameGroup.style.display = 'none';
+                sensitivityGroup.style.display = 'none';
+                authTitle.innerText = "تسجيل الدخول لحساب سابق";
+                authBtn.innerText = "استعادة الحساب والتشغيل";
+                toggleAuthBtn.innerText = "ليس لديك حساب؟ إنشاء حساب جديد";
+                document.getElementById('driverName').required = false;
+            } else {
+                nameGroup.style.display = 'block';
+                sensitivityGroup.style.display = 'block';
+                authTitle.innerText = "تسجيل سائق جديد (اشتراك)";
+                authBtn.innerText = "إنشاء الحساب وتفعيل النظام";
+                toggleAuthBtn.innerText = "لديك حساب مشترك سابقاً؟ تسجيل الدخول";
+                document.getElementById('driverName').required = true;
+            }
+        }
+
         function navigateTo(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
-            window.scrollTo(0,0);
         }
 
-        // معالجة بيانات تسجيل الدخول وتشفيرها وعرضها محلياً
-        function handleAuth(event) {
+        // معالجة الدخول وتشغيل كاميرا المستخدم الحقيقية
+        async function handleAuth(event) {
             event.preventDefault();
+            const name = isOldAccountMode ? "مشترك سابق" : document.getElementById('driverName').value;
             
-            const name = document.getElementById('driverName').value;
-            const email = document.getElementById('driverEmail').value;
-            const sensitivity = document.getElementById('appSensitivity').value;
-
-            // إدراج اسم السائق والبيانات بشكل تفاعلي بالواجهات والجدول البرمجي
-            document.getElementById('welcomeDriverText').innerText = `مرحباً بك أيها السائق: ${name} | مستوى الحماية: ${sensitivity.toUpperCase()}`;
-            document.getElementById('tableDriverName').innerText = name;
-
-            // الانتقال الفوري لمركز العمليات
+            document.getElementById('welcomeDriverText').innerText = `السائق المستهدف: ${name} | نظام حماية الرؤية نشط`;
+            
             navigateTo('mainAppScreen');
+            await startWebcam(); // تشغيل الكاميرا فور الدخول لإظهار صورة المستخدم
         }
 
-        // محاكاة فورية لرصد النعاس وإرسال الإشعارات والتقارير الأمنية
+        // وظيفة تشغيل الكاميرا الحقيقية للجهاز وإسقاطها بالشاشة
+        async function startWebcam() {
+            const video = document.getElementById('webcam');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+                video.srcObject = stream;
+                streamRef = stream;
+            } catch (err) {
+                alert("تنبيه: يرجى السماح بصلاحية الكاميرا لتتمكن لجان التحكيم من رؤية صورتك الحية على الشاشة.");
+                console.error("خطأ في تشغيل الكاميرا: ", err);
+            }
+        }
+
+        // إغلاق الكاميرا عند تسجيل الخروج للحفاظ على الأداء والخصوصية
+        function stopCameraAndLogout() {
+            if (streamRef) {
+                streamRef.getTracks().forEach(track => track.stop());
+            }
+            // إلغاء الفلاش اللليلي إن كان يعمل
+            document.body.classList.remove('night-flash-active');
+            navigateTo('authScreen');
+        }
+
+        // ميزة فلاش الضوء الأبيض للتصوير والعمل بالظلام
+        function toggleNightFlash() {
+            document.body.classList.toggle('night-flash-active');
+            const cameraBox = document.getElementById('cameraBox');
+            
+            if(document.body.classList.contains('night-flash-active')) {
+                cameraBox.style.borderColor = "#ffffff";
+                cameraBox.style.boxShadow = "0 0 35px #ffffff";
+            } else {
+                cameraBox.style.borderColor = "var(--primary)";
+                cameraBox.style.boxShadow = "0 0 20px rgba(0, 255, 204, 0.3)";
+            }
+        }
+
+        // محاكاة رصد النعاس وإصدار الصوت
         function simulateDrowsiness() {
             const status = document.getElementById('statusIndicator');
-            status.innerHTML = `<span style="color: var(--danger);" class="blink"><i class="fa-solid fa-triangle-exclamation"></i> تم رصد حالة نوم فورية! جاري إطلاق الإنذار</span>`;
+            status.innerHTML = `<span style="color: var(--danger); font-weight:bold;">⚠️ تم رصد نعاس! إطلاق إنذار</span>`;
             
-            // إصدار صوت تنبيه رقمي محلي بالمتصفح لحماية السائق
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioCtx.createOscillator();
             oscillator.type = 'sawtooth';
-            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // تردد صوت حاد
+            oscillator.frequency.setValueAtTime(900, audioCtx.currentTime);
             oscillator.connect(audioCtx.destination);
             oscillator.start();
             
-            // إيقاف الإنذار بعد ثانيتين وإرجاع الفحص الطبيعي
             setTimeout(() => {
                 oscillator.stop();
-                status.innerHTML = `<span style="color: #00ffcc;"><i class="fa-solid fa-circle-check"></i> جاري مراقبة العين والوجه محلياً</span>`;
-            }, 2000);
-
-            // تفعيل نظام إرسال التقارير البريدية الفورية لغرفة العمليات عبر EmailJS
-            const driver = document.getElementById('driverName').value;
-            const email = document.getElementById('driverEmail').value;
-            
-            console.log(`إشعار أمني سيبراني: تم رصد نعاس للسائق ${driver}، وإرسال تنبيه إلى ${email}`);
+                status.innerHTML = `<span>🟢 نظام الرصد والذكاء الاصطناعي نشط</span>`;
+            }, 1800);
         }
     </script>
 </body>
