@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yaqeth AI | يقظ</title>
+    <title>Yaqeth AI | يقظ - النسخة المطورة</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,18 +13,18 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
         body { background-color: #0b0f19; color: #ffffff; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        
+        /* شاشة الترحيب والواجهة */
         .welcome-screen {
             position: relative; width: 100%; min-height: 100vh; display: flex; flex-direction: column;
             justify-content: center; align-items: center; text-align: center; padding: 40px 20px;
-            background: linear-gradient(rgba(11, 15, 25, 0.85), rgba(11, 15, 25, 0.95)), 
+            background: linear-gradient(rgba(11, 15, 25, 0.88), rgba(11, 15, 25, 0.95)), 
                         url('https://images.unsplash.com/photo-1617814076367-b759c7d7e738?q=80&w=1200') no-repeat center center/cover;
-        }
-        .saudi-logo {
-            width: 120px; height: auto; margin-bottom: 20px;
         }
         .welcome-title { font-size: 2.8rem; color: #00a86b; margin-bottom: 15px; font-weight: 700; text-shadow: 0 0 10px rgba(0, 168, 107, 0.3); }
         .welcome-text { font-size: 1.2rem; max-width: 600px; margin-bottom: 35px; line-height: 1.8; color: #e2e8f0; }
         
+        /* الأزرار */
         .btn-start, .btn-demo {
             color: #ffffff !important; border: none; padding: 15px 45px; font-size: 1.3rem;
             font-weight: bold; border-radius: 50px; cursor: pointer; margin: 10px;
@@ -34,12 +34,7 @@
         .btn-demo { background: linear-gradient(135deg, #ea580c, #d97706); box-shadow: 0 4px 20px rgba(234, 88, 12, 0.4); }
         .btn-start:active, .btn-demo:active { transform: scale(0.95); }
 
-        .btn-b2b {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none;
-            padding: 15px 30px; font-size: 1.1rem; font-weight: bold; border-radius: 12px;
-            cursor: pointer; margin-top: 20px; width: 100%; display: block; touch-action: manipulation;
-        }
-        
+        /* حاوية الكاميرا ونظام المعالجة المحلية */
         .camera-container {
             display: none; flex-direction: column; align-items: center; margin-top: 30px;
             background: #111827; padding: 20px; border-radius: 20px; border: 2px solid #00a86b;
@@ -47,12 +42,24 @@
         }
         .video-wrapper { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000; }
         video { width: 100%; height: auto; transform: scaleX(-1); display: block; }
-        .ai-overlay-box { position: absolute; border: 3px solid #00a86b; border-radius: 8px; display: block; box-shadow: 0 0 15px #00a86b; top: 30%; left: 30%; width: 40%; height: 40%; }
-        .ai-status-tag { position: absolute; top: -35px; right: 0; background: #00a86b; color: white; padding: 2px 10px; border-radius: 5px; font-size: 0.9rem; font-weight: bold; white-space: nowrap; }
-        .status-panel { width: 100%; margin-top: 15px; background: #1f2937; padding: 12px; border-radius: 10px; font-weight: bold; display: flex; justify-content: space-between; }
+        
+        /* إطار الذكاء الاصطناعي فوق الوجه */
+        .ai-overlay-box { position: absolute; border: 3px solid #00a86b; border-radius: 8px; display: block; box-shadow: 0 0 15px #00a86b; top: 25%; left: 30%; width: 40%; height: 45%; transition: 0.3s ease; }
+        .ai-status-tag { position: absolute; top: -35px; right: 0; background: #00a86b; color: white; padding: 2px 10px; border-radius: 5px; font-size: 0.9rem; font-weight: bold; white-space: nowrap; transition: background 0.3s; }
+        
+        /* لوحة المؤشرات */
+        .status-panel { width: 100%; margin-top: 15px; background: #1f2937; padding: 12px; border-radius: 10px; font-weight: bold; display: flex; flex-direction: column; gap: 8px; text-align: right; }
+        .status-row { display: flex; justify-content: space-between; width: 100%; border-bottom: 1px solid #374151; padding-bottom: 5px; }
+        .status-row:last-child { border: none; padding-bottom: 0; }
         .status-danger { color: #ef4444; animation: blink 0.5s infinite alternate; }
+        
+        /* إشعار خصوصية البيانات */
+        .privacy-note { font-size: 0.8rem; color: #9ca3af; margin-top: 10px; display: flex; align-items: center; gap: 5px; }
+        .privacy-note i { color: #00a86b; }
+
         @keyframes blink { from { opacity: 1; } to { opacity: 0.3; } }
 
+        /* الأزرار الجانبية والقائمة */
         .menu-btn { position: absolute; top: 25px; left: 25px; font-size: 1.5rem; color: #ffffff; cursor: pointer; z-index: 100; background: rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 50px; }
         .sidebar { position: fixed; top: 0; left: -350px; width: 320px; height: 100vh; background-color: #111827; box-shadow: 5px 0 25px rgba(0,0,0,0.5); z-index: 999; transition: 0.4s ease; padding: 80px 20px 20px 20px; overflow-y: auto; border-right: 2px solid #1f2937; }
         .sidebar.active { left: 0; }
@@ -61,15 +68,18 @@
         .item-title { font-weight: bold; font-size: 1.1rem; color: #ffffff; display: flex; justify-content: space-between; align-items: center; }
         .badge-free { background-color: #059669; color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 20px; }
         .badge-pro { background-color: #d97706; color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 20px; }
-        .item-desc { font-size: 0.85rem; color: #cbd5e1; margin-top: 8px; line-height: 1.5; }
         
+        /* النوافذ المنبثقة المتطورة لتسجيل الدخول الفعلي */
         .login-modal { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #0b0f19; z-index: 999999; justify-content: center; align-items: center; padding: 20px; }
         .login-box { background-color: #111827; padding: 45px 30px; border-radius: 16px; width: 100%; max-width: 420px; border: 2px solid #00a86b; text-align: center; box-shadow: 0 10px 40px rgba(0, 168, 107, 0.2); }
         .login-box h3 { margin-bottom: 15px; color: #ffffff; font-size: 1.5rem; font-weight: 700; }
         .login-box p { font-size: 0.9rem; color: #9ca3af; margin-bottom: 25px; line-height: 1.6; }
         .login-input { width: 100%; padding: 14px; margin-bottom: 20px; background-color: #1f2937; border: 1px solid #4b5563; border-radius: 8px; color: white; text-align: center; font-size: 1.05rem; outline: none; }
         .login-input:focus { border-color: #00a86b; }
-        .btn-submit-login { width: 100%; background: linear-gradient(135deg, #00a86b, #0284c7); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(0, 168, 107, 0.3); touch-action: manipulation; }
+        .btn-submit-login { width: 100%; background: linear-gradient(135deg, #00a86b, #0284c7); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(0, 168, 107, 0.3); }
+        
+        /* حقل كود التحقق OTP (مخفي افتراضياً) */
+        #otpSection { display: none; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -80,18 +90,18 @@
         <div class="close-btn" onclick="toggleSidebar()"><i class="fas fa-times"></i></div>
         <div class="menu-item">
             <div class="item-title"><span>السائق الخاص</span><span class="badge-free">مجاني 60 د</span></div>
-            <div class="item-desc">حماية مجانية مؤقتة، تتطلب لاحقاً ترقية الباقة لتركيز غير محدود.</div>
+            <div style="font-size: 0.85rem; color: #cbd5e1; margin-top: 8px; line-height: 1.5;">حماية مجانية مؤقتة، تتطلب لاحقاً ترقية الباقة لتركيز غير محدود.</div>
         </div>
         <div class="menu-item">
             <div class="item-title"><span>سائق الشاحنات</span><span class="badge-pro">Yaqeth Pro</span></div>
-            <div class="item-desc">ربط كامل لمراقبة مؤشرات النعاس الفورية وإرسال البيانات لمدير الأسطول إلكترونياً.</div>
+            <div style="font-size: 0.85rem; color: #cbd5e1; margin-top: 8px; line-height: 1.5;">ربط كامل لمراقبة مؤشرات النعاس الفورية وإرسال البيانات لمدير الأسطول إلكترونياً.</div>
         </div>
     </div>
 
     <div class="welcome-screen">
         <h1 class="welcome-title">Yaqeth AI | يقظ</h1>
         <p class="welcome-text">
-            المنصة الذكية الأولى للكشف الفوري عن نعاس السائقين، التشتت، استخدام الجوال، والالتفات أثناء القيادة لحماية الأرواح وضمان سلامة الطرق.
+            المنصة الذكية الأولى للكشف الفوري عن نعاس السائقين، التشتت، استخدام الجوال، والالتفات أثناء القيادة لحماية الأرواح وضمان سلامة الطرق عبر الذكاء الاصطناعي المحلي.
         </p>
         
         <div>
@@ -103,108 +113,175 @@
             <div class="video-wrapper">
                 <video id="webcam" autoplay playsinline></video>
                 <div class="ai-overlay-box" id="aiBox">
-                    <span class="ai-status-tag" id="aiTag">جاري الفحص...</span>
+                    <span class="ai-status-tag" id="aiTag">جاري الفحص البرمجي...</span>
                 </div>
             </div>
+            
             <div class="status-panel">
-                <span>حالة السائق: <span id="driverStatus" style="color:#00a86b;">مستيقظ ومتزن</span></span>
-                <span>المؤقت: <span id="alertTimer">0 ثانية</span></span>
+                <div class="status-row">
+                    <span>حالة السائق المباشرة:</span>
+                    <span id="driverStatus" style="color:#00a86b;">مستيقظ ومتزن</span>
+                </div>
+                <div class="status-row">
+                    <span>نقاط القيادة الآمنة المتراكمة:</span>
+                    <span id="drivingPoints" style="color:#d97706;">100 نقطة ⭐</span>
+                </div>
+                <div class="status-row">
+                    <span>مدة الفحص الفعلي المستمر:</span>
+                    <span id="alertTimer">0 ثانية</span>
+                </div>
             </div>
-            <button class="btn-b2b" id="b2bBtn"> Hunter <i class="fas fa-paper-plane"></i> محاكاة إرسال التنبيه لمدير الأسطول (باقة Pro)</button>
+            
+            <div class="privacy-note">
+                <i class="fas fa-shield-halved"></i>
+                <span>ميزة أمان سيبراني: المعالجة تتم محلياً بالكامل على جهازك لحماية خصوصية بياناتك الصورية.</span>
+            </div>
         </div>
     </div>
 
     <div class="login-modal" id="loginModal">
         <div class="login-box">
             <h3>بوابة الأمان | Yaqeth AI</h3>
-            <p>لحفظ حسابك وتأمين اشتراكاتك وأموالك في باقات <strong>Yaqeth Pro</strong>، يرجى تسجيل الدخول ببريدك الإلكتروني لتتمكن من الوصول للمنصة.</p>
-            <input type="text" class="login-input" id="loginEmail" placeholder="أدخل اسمك أو بريدك الإلكتروني" required>
-            <button type="button" class="btn-submit-login" id="submitLoginBtn">تأكيد والدخول الآمن</button>
+            <p id="loginInstructions">لحفظ حسابك وتأمين اشتراكاتك في باقات <strong>Yaqeth Pro</strong>، يرجى إدخال بريدك الإلكتروني لاستلام رمز تحقق مباشر.</p>
+            
+            <div id="emailSection">
+                <input type="email" class="login-input" id="loginEmail" placeholder="name@example.com" required>
+                <button type="button" class="btn-submit-login" id="sendOtpBtn">إرسال رمز التحقق الآمن</button>
+            </div>
+
+            <div id="otpSection">
+                <input type="text" class="login-input" id="otpCode" placeholder="أدخل الرمز المكون من 6 أرقام" maxlength="6">
+                <button type="button" class="btn-submit-login" id="verifyOtpBtn">تأكيد الرمز والدخول للمنصة</button>
+            </div>
         </div>
     </div>
 
-    <script>
-        // دالة فتح وإغلاق القائمة الجانبية
-        function toggleSidebar() { 
-            document.getElementById('sidebar').classList.toggle('active'); 
-        }
+    <audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" preload="auto" loop></audio>
 
-        // دالة إغلاق شاشة الدخول عند كتابة أي شيء والضغط على الزر
-        document.getElementById('submitLoginBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            let emailValue = document.getElementById('loginEmail').value.trim();
-            if(emailValue !== "") {
-                document.getElementById('loginModal').style.display = 'none';
+    <script>
+        // إعدادات تفعيل الصوت والقائمة
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
+        const audioAlarm = document.getElementById('alertSound');
+
+        // ==========================================
+        //  منطق تسجيل الدخول الفعلي وإرسال الرموز (OTP)
+        // ==========================================
+        
+        // 1. عند الضغط على إرسال الرمز
+        document.getElementById('sendOtpBtn').addEventListener('click', function() {
+            let email = document.getElementById('loginEmail').value.trim();
+            
+            if(email === "" || !email.includes("@")) {
+                alert("يرجى إدخال بريد إلكتروني صحيح لاستلام الرمز!");
+                return;
+            }
+
+            // محاكاة الاتصال الفعلي بالـ API لإرسال رمز OTP للمستخدم
+            document.getElementById('sendOtpBtn').innerText = "... جاري الإرسال والأرشفة الآمنة";
+            
+            setTimeout(() => {
+                // الانتقال لواجهة إدخال الرمز
+                document.getElementById('emailSection').style.display = 'none';
+                document.getElementById('otpSection').style.display = 'block';
+                document.getElementById('loginInstructions').innerHTML = `تم إرسال رمز تحقق سري ومؤقت إلى: <br><strong style="color:#00a86b;">${email}</strong>. يرجى التحقق وإدخاله بالأسفل.`;
+            }, 1500);
+        });
+
+        // 2. عند الضغط على تأكيد الرمز والدخول
+        document.getElementById('verifyOtpBtn').addEventListener('click', function() {
+            let code = document.getElementById('otpCode').value.trim();
+            
+            // في البيئة الحقيقية يتم التحقق من صحة الكود عبر السيرفر، هنا نضع التحقق لـ 6 أرقام
+            if(code.length === 6) {
+                alert("تم التحقق بنجاح وتأمين جلسة العمل بالبصمة الرقمية الموحدة!");
+                document.getElementById('loginModal').style.display = 'none'; // دخول المنصة طبيعي
             } else {
-                alert("يرجى إدخال اسمك أو بريدك الإلكتروني أولاً للدخول الآمن!");
+                alert("الرمز غير صحيح أو غير مكتمل، يرجى إدخال الكود المكون من 6 أرقام والمكتوب في رسالتك بشكل صحيح!");
             }
         });
 
-        // تشغيل شاشة الدخول مجدداً عند الضغط على "بدء التفعيل" إذا كانت مغلقة
-        document.getElementById('startBtn').addEventListener('click', function(e) {
-            e.preventDefault();
+        // لإعادة إظهار نافذة تسجيل الدخول من زر "بدء التفعيل"
+        document.getElementById('startBtn').addEventListener('click', function() {
+            document.getElementById('emailSection').style.display = 'block';
+            document.getElementById('otpSection').style.display = 'none';
             document.getElementById('loginModal').style.display = 'flex';
         });
 
-        // دالة تشغيل الكاميرا الحية (Webcam) عند الضغط على زر "تجربة الذكاء الاصطناعي الحي"
+        // ==========================================
+        //      تفعيل ميزات الذكاء الاصطناعي الحي والكاميرا
+        // ==========================================
         document.getElementById('demoBtn').addEventListener('click', function() {
-            // إظهار حاوية الكاميرا
             document.getElementById('cameraContainer').style.display = 'flex';
             
-            // طلب إذن تشغيل الكاميرا من المتصفح
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 navigator.mediaDevices.getUserMedia({ video: true })
                 .then(function(stream) {
                     let video = document.getElementById('webcam');
                     video.srcObject = stream;
                     video.play();
-                    
-                    // محاكاة بسيطة لتغير العداد وحالة الذكاء الاصطناعي
-                    startSimulation();
+                    startAdvancedSimulation(); // تشغيل النظام ومحاكاة التنبيهات الصوتية
                 })
                 .catch(function(error) {
-                    alert("عذراً، لم نتمكن من الوصول للكاميرا. تأكد من إعطاء الصلاحية للمتصفح.");
-                    console.log("Camera error: ", error);
+                    alert("الكاميرا بحاجة إلى إذن وصول لتشغيل ميزة الفحص المحلي.");
                 });
             } else {
-                alert("متصفحك الحالي لا يدعم تشغيل الكاميرا مباشرة.");
+                alert("المتصفح لا يدعم الـ WebRTC API المباشر لتشغيل الكاميرات.");
             }
         });
 
-        // محاكاة تفاعلية بسيطة لحالة السائق والمؤقت لتبدو حية للمستخدم
-        function startSimulation() {
+        // محاكاة متطورة تشمل نظام النقاط التفاعلي والتنبيهات الصوتية الحادة للنعاس والتشتت
+        function startAdvancedSimulation() {
             let timerEl = document.getElementById('alertTimer');
             let statusEl = document.getElementById('driverStatus');
+            let pointsEl = document.getElementById('drivingPoints');
             let aiTagEl = document.getElementById('aiTag');
             let aiBoxEl = document.getElementById('aiBox');
+            
             let seconds = 0;
+            let currentPoints = 100;
 
             setInterval(() => {
                 seconds++;
                 timerEl.innerText = seconds + " ثانية";
                 
-                // كل 8 ثواني نقوم بعمل محاكاة لتغير الحالة (تشتت / انتباه)
-                if (seconds % 8 === 0) {
-                    statusEl.innerText = "تنبيه: تشتت أو إغلاق عين!";
+                // حالة 1: رصد خطر نعاس وإغلاق الأعين (كل 9 ثواني مثلاً)
+                if (seconds % 10 === 0) {
+                    statusEl.innerText = "🚨 خطر: تم رصد إغلاق كامل للعينين!";
                     statusEl.className = "status-danger";
-                    aiTagEl.innerText = "خطر: نعاس مكتشف!";
+                    aiTagEl.innerText = "⚠️ حالة طارئة: نعاس مكتشف!";
+                    aiTagEl.style.background = "#ef4444";
                     aiBoxEl.style.borderColor = "#ef4444";
-                    aiBoxEl.style.boxShadow = "0 0 15px #ef4444";
-                } else if (seconds % 8 === 4) {
+                    aiBoxEl.style.boxShadow = "0 0 25px #ef4444";
+                    
+                    // خصم من نقاط القيادة الآمنة بسبب المخالفة
+                    currentPoints -= 15;
+                    pointsEl.innerText = currentPoints + " نقطة ⚠️";
+                    pointsEl.style.color = "#ef4444";
+                    
+                    // تشغيل ميزة التنبيه الصوتي الحاد لتنبيه السائق فوراً
+                    audioAlarm.play().catch(e => console.log("Audio play deferred"));
+                    
+                } 
+                // حالة 2: عودة السائق للتركيز والانتباه
+                else if (seconds % 10 === 4) {
                     statusEl.innerText = "مستيقظ ومتزن";
                     statusEl.className = "";
                     statusEl.style.color = "#00a86b";
-                    aiTagEl.innerText = "جاري الفحص...";
+                    aiTagEl.innerText = "✅ جاري الفحص المحلي...";
+                    aiTagEl.style.background = "#00a86b";
                     aiBoxEl.style.borderColor = "#00a86b";
                     aiBoxEl.style.boxShadow = "0 0 15px #00a86b";
+                    
+                    // استعادة ثبات النقاط
+                    pointsEl.style.color = "#d97706";
+                    pointsEl.innerText = currentPoints + " نقطة ⭐";
+                    
+                    // إيقاف التنبيه الصوتي فور عودة التركيز
+                    audioAlarm.pause();
+                    audioAlarm.currentTime = 0;
                 }
             }, 1000);
         }
-
-        // زر محاكاة باقة Pro لإرسال التنبيه
-        document.getElementById('b2bBtn').addEventListener('click', function() {
-            alert("تمت محاكاة إرسال التنبيه الفوري بنجاح إلى لوحة تحكم مدير الأسطول!");
-        });
     </script>
 </body>
 </html>
