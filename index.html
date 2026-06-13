@@ -2,123 +2,88 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Yaqeth AI | المنظومة المركزية لإدارة الأصول والسلامة</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <title>Yaqeth AI | منصة إدارة سلامة الأساطيل</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --main: #00ffcc; --dark: #050811; --card: #0f172a; --danger: #ff3366; --panel: #1e293b; }
-        body { font-family: 'Cairo', sans-serif; background: var(--dark); color: #fff; margin: 0; }
-        
-        /* تصميم الـ Dashboard بنظام الشبكة */
-        .dashboard { display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px; padding: 20px; height: 100vh; }
-        .sidebar { background: var(--card); padding: 20px; border-radius: 20px; }
-        
-        /* الصندوق الأسود السيبراني */
-        .blackbox { height: 200px; background: #000; color: var(--main); font-family: monospace; overflow-y: auto; padding: 10px; border: 1px solid #333; font-size: 12px; }
-        
-        /* الخريطة */
-        #map { height: 400px; width: 100%; border-radius: 15px; margin-bottom: 20px; }
-        
-        /* شاشة الدفع */
-        .modal { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index: 9999; display: none; justify-content: center; align-items: center; }
-        
-        /* التحكم في حجم الكاميرا */
-        .camera-container { width: 100%; height: 250px; background: #000; border-radius: 15px; overflow: hidden; border: 2px solid var(--main); }
-        #webcam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        body { background-color: #050811; color: white; font-family: 'Cairo', sans-serif; }
+        .glass-panel { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(0, 255, 204, 0.2); }
     </style>
 </head>
-<body>
+<body class="p-4 md:p-8">
 
-    <div id="authPanel" style="padding: 50px;">
-        <div class="auth-container" style="max-width: 500px; background:var(--card); padding:30px; border-radius:20px; margin:auto;">
-            <h2>مرحباً بك في يقظ</h2>
-            <input type="text" id="dName" placeholder="الاسم الثلاثي">
-            <input type="text" id="vType" placeholder="المركبة وموديلها (مثال: تويوتا برادو 2026)">
-            <input type="text" id="plate" placeholder="رقم اللوحة">
-            <button onclick="processLogin()" style="width:100%; padding:15px; background:var(--main); border:none; border-radius:10px;">بدء الرحلة الآمنة</button>
+    <header class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-teal-400">يقظ | Yaqeth AI</h1>
+            <p class="text-slate-400">لوحة تحكم إدارة السلامة اللوجستية المركزية</p>
         </div>
-    </div>
-
-    <div id="mainDashboard" class="dashboard" style="display:none;">
-        <div class="sidebar">
-            <h3>محفظة السائق</h3>
-            <div id="walletPoints" style="font-size: 2em; color: var(--main);">0 نقطة</div>
-            <hr>
-            <h3>سجل الإنذارات</h3>
-            <ul id="logList" style="font-size: 12px;"></ul>
+        <div class="text-right">
+            <p class="text-teal-400 font-bold">الحالة: متصل</p>
+            <p class="text-xs text-slate-500" id="current-time"></p>
         </div>
+    </header>
 
-        <div class="content">
-            <div id="map"></div>
-            <div class="camera-container">
-                <video id="webcam" autoplay playsinline muted></video>
-            </div>
-            <div style="margin-top:20px;">
-                <button onclick="exportPDF()" class="btn">تصدير تقرير PDF للمدير</button>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="lg:col-span-2 space-y-6">
+            <div class="glass-panel p-6 rounded-2xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">التتبع الحي للمركبة</h2>
+                    <div id="speed-display" class="text-3xl font-mono font-bold text-white">0 km/h</div>
+                </div>
+                <div class="relative bg-black rounded-xl overflow-hidden aspect-video">
+                    <video id="webcam" autoplay muted class="w-full h-full object-cover transform scale-x-[-1]"></video>
+                    <div id="alert-overlay" class="absolute inset-0 border-4 border-transparent pointer-events-none"></div>
+                </div>
             </div>
         </div>
 
-        <div class="sidebar">
-            <h3>الصندوق الأسود (NCA)</h3>
-            <div class="blackbox" id="blackbox"></div>
-            <h3>توفير التأمين</h3>
-            <div id="savings">0 ريال</div>
-        </div>
-    </div>
-
-    <div id="paymentModal" class="modal">
-        <div style="background:var(--card); padding:40px; border-radius:20px; text-align:center;">
-            <h2 id="payMsg">يتطلب نظام الشركات رسوم اشتراك 50 ريال</h2>
-            <button onclick="confirmPayment()" style="padding:20px 40px; background:var(--main); border:none; border-radius:10px;">دفع الاشتراك وتفعيل الأسطول</button>
+        <div class="glass-panel p-6 rounded-2xl">
+            <h2 class="text-xl font-bold mb-6">إدارة الأسطول (Dashboard)</h2>
+            <div class="space-y-4">
+                <div class="p-4 bg-slate-800 rounded-xl">
+                    <p class="text-sm text-slate-400">إجمالي الحوادث الممنوعة اليوم</p>
+                    <p class="text-2xl font-bold text-teal-400">12</p>
+                </div>
+                <div class="p-4 bg-slate-800 rounded-xl">
+                    <p class="text-sm text-slate-400">معدل التزام السائقين</p>
+                    <p class="text-2xl font-bold text-yellow-400">94%</p>
+                </div>
+            </div>
+            <button onclick="triggerEmergencySOS()" class="w-full mt-6 bg-red-600 hover:bg-red-700 py-3 rounded-xl font-bold transition">
+                <i class="fa-solid fa-triangle-exclamation"></i> إرسال نداء طوارئ (SOS)
+            </button>
         </div>
     </div>
 
     <script>
-        let sessionTime = 0;
-        let points = 0;
-
-        async function processLogin() {
-            const vType = document.getElementById('vType').value.toLowerCase();
-            if(vType.includes('شاحنة')) {
-                document.getElementById('paymentModal').style.display = 'flex';
-            } else {
-                startApp();
-            }
-        }
-
-        function confirmPayment() {
-            document.getElementById('paymentModal').style.display = 'none';
-            startApp();
-        }
-
-        async function startApp() {
-            document.getElementById('authPanel').style.display = 'none';
-            document.getElementById('mainDashboard').style.display = 'grid';
+        // محاكاة السرعة
+        let currentSpeed = 80;
+        setInterval(() => {
+            currentSpeed = Math.floor(Math.random() * 140);
+            const speedEl = document.getElementById('speed-display');
+            speedEl.innerText = currentSpeed + " km/h";
             
-            // تشغيل الكاميرا
-            const stream = await navigator.mediaDevices.getUserMedia({video: true});
+            if(currentSpeed > 120) {
+                speedEl.classList.add('text-red-500');
+                document.getElementById('alert-overlay').classList.replace('border-transparent', 'border-red-600');
+            } else {
+                speedEl.classList.remove('text-red-500');
+                document.getElementById('alert-overlay').classList.replace('border-red-600', 'border-transparent');
+            }
+        }, 2000);
+
+        // تشغيل الكاميرا
+        navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
             document.getElementById('webcam').srcObject = stream;
+        });
 
-            // تهيئة الخريطة
-            const map = L.map('map').setView([24.7136, 46.6753], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-            // عداد الـ 60 دقيقة
-            setInterval(() => {
-                sessionTime++;
-                if(sessionTime >= 3600) { alert("انتهت الفترة التجريبية، يرجى الدفع للاستمرار."); }
-            }, 1000);
-
-            // تسجيل الصندوق الأسود
-            setInterval(() => {
-                const log = `[${new Date().toLocaleTimeString()}] النظام يعمل بكفاءة - حالة الأمان: ممتاز\n`;
-                document.getElementById('blackbox').innerHTML += log;
-            }, 5000);
+        // SOS Function
+        function triggerEmergencySOS() {
+            alert("تم إرسال تنبيه طوارئ إلى غرفة العمليات المركزية ومزود خدمة التأمين.");
         }
 
-        function exportPDF() {
-            alert("تم توليد التقرير الأمني بصيغة PDF وإرساله لغرفة العمليات.");
-        }
+        document.getElementById('current-time').innerText = new Date().toLocaleTimeString();
     </script>
 </body>
 </html>
