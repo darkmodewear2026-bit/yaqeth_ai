@@ -14,14 +14,15 @@
     
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
-        body { background-color: #0b0f19; color: #ffffff; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #0b0f19; color: #ffffff; overflow-x: hidden; -webkit-tap-highlight-color: transparent; transition: background 0.3s; }
         
         .top-bar { position: absolute; top: 25px; right: 25px; z-index: 100; display: flex; align-items: center; gap: 10px; }
         .lang-select { background: rgba(31, 41, 55, 0.9); color: white; border: 1px solid #00a86b; padding: 8px 15px; border-radius: 50px; font-weight: bold; outline: none; cursor: pointer; font-size: 0.9rem; }
         .lang-select option { background: #111827; color: white; }
 
+        /* الشاشة الرئيسية المحدثة */
         .welcome-screen {
-            position: relative; width: 100%; min-height: 100vh; display: flex; flex-direction: column;
+            display: flex; width: 100%; min-height: 100vh; flex-direction: column;
             justify-content: center; align-items: center; text-align: center; padding: 40px 20px;
             background: linear-gradient(rgba(11, 15, 25, 0.88), rgba(11, 15, 25, 0.95)), 
                         url('https://images.unsplash.com/photo-1617814076367-b759c7d7e738?q=80&w=1200') no-repeat center center/cover;
@@ -29,46 +30,55 @@
         .welcome-title { font-size: 2.8rem; color: #00a86b; margin-bottom: 15px; font-weight: 700; text-shadow: 0 0 10px rgba(0, 168, 107, 0.3); }
         .welcome-text { font-size: 1.2rem; max-width: 600px; margin-bottom: 35px; line-height: 1.8; color: #e2e8f0; }
         
-        .btn-start, .btn-demo {
-            color: #ffffff !important; border: none; padding: 15px 45px; font-size: 1.3rem;
+        .btn-start {
+            color: #ffffff !important; border: none; padding: 16px 60px; font-size: 1.4rem;
             font-weight: bold; border-radius: 50px; cursor: pointer; margin: 10px;
-            transition: transform 0.2s, box-shadow 0.2s; display: inline-block; touch-action: manipulation;
+            background: linear-gradient(135deg, #00a86b, #0284c7); box-shadow: 0 4px 25px rgba(0, 168, 107, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s; touch-action: manipulation;
         }
-        .btn-start { background: linear-gradient(135deg, #00a86b, #0284c7); box-shadow: 0 4px 20px rgba(0, 168, 107, 0.4); }
-        .btn-demo { background: linear-gradient(135deg, #ea580c, #d97706); box-shadow: 0 4px 20px rgba(234, 88, 12, 0.4); }
-        .btn-start:active, .btn-demo:active { transform: scale(0.95); }
+        .btn-start:active { transform: scale(0.95); }
 
+        /* زر التراجع العائم لغلق صفحة الفحص والعودة للرئيسية */
         .back-floating-btn { 
             display: none; position: fixed; bottom: 25px; right: 25px; 
             background: #1f2937; color: white; border: 2px solid #ef4444; 
             padding: 12px 25px; border-radius: 50px; font-weight: bold; 
-            cursor: pointer; z-index: 9999; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); 
+            cursor: pointer; z-index: 99999; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); 
             transition: 0.2s; align-items: center; gap: 8px; font-size: 1rem; 
         }
         .back-floating-btn:active { transform: scale(0.95); }
         body.en-lang .back-floating-btn { right: auto; left: 25px; }
 
-        .camera-container {
-            display: none; flex-direction: column; align-items: center; margin-top: 30px;
-            background: #111827; padding: 20px; border-radius: 20px; border: 2px solid #00a86b;
-            max-width: 500px; width: 100%; position: relative; z-index: 10;
+        /* شاشة الفحص المستقلة والمزودة بالإضاءة البيضاء الليلية القوية */
+        .camera-screen {
+            display: none; width: 100%; min-height: 100vh; flex-direction: column;
+            align-items: center; justify-content: center; padding: 30px 20px;
+            background-color: #ffffff; /* الخلفية بيضاء تماماً لتوفير أقصى سطوع وإنارة لوجه السائق */
+            position: fixed; top: 0; left: 0; z-index: 9999; overflow-y: auto;
         }
-        .video-wrapper { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000; }
+        
+        .camera-container {
+            display: flex; flex-direction: column; align-items: center;
+            background: #111827; padding: 25px; border-radius: 24px; border: 3px solid #00a86b;
+            max-width: 500px; width: 100%; position: relative; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+        .video-wrapper { position: relative; width: 100%; border-radius: 14px; overflow: hidden; background: #000; box-shadow: 0 0 20px rgba(0, 168, 107, 0.2); }
         video { width: 100%; height: auto; transform: scaleX(-1); display: block; }
         
         .ai-overlay-box { position: absolute; border: 3px solid #00a86b; border-radius: 8px; display: block; box-shadow: 0 0 15px #00a86b; top: 25%; left: 30%; width: 40%; height: 45%; transition: 0.3s ease; }
-        .ai-status-tag { position: absolute; top: -35px; right: 0; background: #00a86b; color: white; padding: 2px 10px; border-radius: 5px; font-size: 0.9rem; font-weight: bold; white-space: nowrap; transition: background 0.3s; }
+        .ai-status-tag { position: absolute; top: -35px; right: 0; background: #00a86b; color: white; padding: 4px 12px; border-radius: 6px; font-size: 0.9rem; font-weight: bold; white-space: nowrap; transition: background 0.3s; }
         
-        .status-panel { width: 100%; margin-top: 15px; background: #1f2937; padding: 12px; border-radius: 10px; font-weight: bold; display: flex; flex-direction: column; gap: 8px; text-align: right; }
-        .status-row { display: flex; justify-content: space-between; width: 100%; border-bottom: 1px solid #374151; padding-bottom: 5px; }
+        .status-panel { width: 100%; margin-top: 18px; background: #1f2937; padding: 15px; border-radius: 12px; font-weight: bold; display: flex; flex-direction: column; gap: 10px; text-align: right; color: #ffffff; }
+        .status-row { display: flex; justify-content: space-between; width: 100%; border-bottom: 1px solid #374151; padding-bottom: 7px; }
         .status-row:last-child { border: none; padding-bottom: 0; }
         .status-danger { color: #ef4444; animation: blink 0.5s infinite alternate; }
         .status-warn { color: #eab308; }
         
-        .privacy-note { font-size: 0.8rem; color: #9ca3af; margin-top: 10px; display: flex; align-items: center; gap: 5px; }
+        .privacy-note { font-size: 0.8rem; color: #9ca3af; margin-top: 12px; display: flex; align-items: center; gap: 6px; text-align: right; width: 100%; justify-content: center; }
 
+        /* القائمة الجانبية للاشتراكات */
         .menu-btn { position: absolute; top: 25px; left: 25px; font-size: 1.5rem; color: #ffffff; cursor: pointer; z-index: 100; background: rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 50px; }
-        .sidebar { position: fixed; top: 0; left: -350px; width: 325px; height: 100vh; background-color: #111827; box-shadow: 5px 0 25px rgba(0,0,0,0.5); z-index: 999; transition: 0.4s ease; padding: 80px 15px 20px 15px; overflow-y: auto; border-right: 2px solid #1f2937; text-align: right; }
+        .sidebar { position: fixed; top: 0; left: -350px; width: 325px; height: 100vh; background-color: #111827; box-shadow: 5px 0 25px rgba(0,0,0,0.5); z-index: 9999aa; transition: 0.4s ease; padding: 80px 15px 20px 15px; overflow-y: auto; border-right: 2px solid #1f2937; text-align: right; }
         .sidebar.active { left: 0; }
         body.en-lang .sidebar { left: auto; right: -350px; border-right: none; border-left: 2px solid #1f2937; text-align: left; }
         body.en-lang .sidebar.active { right: 0; left: auto; }
@@ -76,9 +86,9 @@
         .close-btn { position: absolute; top: 25px; right: 25px; font-size: 1.5rem; cursor: pointer; color: #9ca3af; }
         body.en-lang .close-btn { right: auto; left: 25px; }
         
-        .sidebar-header-title { font-weight: bold; color: #00a86b; font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid #1f2937; padding-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .sidebar-header-title { font-weight: bold; color: #00a86b; font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid #1f2937; padding-bottom: 10px; display: flex; align-items: center; gap: 8px; color: white; }
 
-        .menu-item { background-color: #1f2937; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #374151; display: flex; flex-direction: column; gap: 8px; }
+        .menu-item { background-color: #1f2937; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #374151; display: flex; flex-direction: column; gap: 8px; text-align: right; }
         .item-title { font-weight: bold; font-size: 1.05rem; color: #ffffff; display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .badge-plus { background-color: #0284c7; color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 20px; font-weight: bold; }
         .badge-pro { background-color: #ea580c; color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 20px; font-weight: bold; }
@@ -86,6 +96,7 @@
         .btn-subscribe { width: 100%; background: #111827; border: 1px solid #4b5563; color: white; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85rem; margin-top: 5px; transition: 0.2s; }
         .btn-subscribe:hover { background: #00a86b; border-color: #00a86b; }
         
+        /* النوافذ المنبثقة */
         .login-modal, .payment-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(11, 15, 25, 0.95); z-index: 999999; justify-content: center; align-items: center; padding: 20px; }
         .login-box, .payment-box { background-color: #111827; padding: 35px 25px; border-radius: 16px; width: 100%; max-width: 420px; border: 2px solid #00a86b; text-align: center; box-shadow: 0 10px 40px rgba(0, 168, 107, 0.2); position: relative; }
         .login-box h3, .payment-box h3 { margin-bottom: 12px; color: #ffffff; font-size: 1.4rem; font-weight: 700; }
@@ -104,7 +115,7 @@
 <body>
 
     <button class="back-floating-btn" id="backFloatingBtn" onclick="handleBackAction()">
-        <i class="fas fa-arrow-right"></i> <span id="txt_back_btn">تراجع وإلغاء الفحص</span>
+        <i class="fas fa-arrow-right"></i> <span id="txt_back_btn">إغلاق الفحص والعودة</span>
     </button>
 
     <div class="top-bar">
@@ -122,7 +133,7 @@
 
     <div class="sidebar" id="sidebar">
         <div class="close-btn" onclick="toggleSidebar()"><i class="fas fa-times"></i></div>
-        <div class="sidebar-header-title"><i class="fas fa-credit-card"></i> <span id="txt_plans_title">خطط واشتраكات السائقين</span></div>
+        <div class="sidebar-header-title"><i class="fas fa-credit-card"></i> <span id="txt_plans_title">خطط واشتراكات السائقين</span></div>
         
         <div class="menu-item">
             <div class="item-title"><span id="txt_p1_title">السائق الخاص</span><span class="badge-plus">Yaqeth Plus</span></div>
@@ -153,7 +164,7 @@
         </div>
     </div>
 
-    <div class="welcome-screen">
+    <div class="welcome-screen" id="welcomeScreen">
         <h1 class="welcome-title" id="txt_main_title">Yaqeth AI | يقظ</h1>
         <p class="welcome-text" id="txt_main_desc">
             المنصة الذكية الأولى للكشف الفوري عن نعاس السائقين، التشتت، استخدام الجوال، والالتفات أثناء القيادة لحماية الأرواح وضمان سلامة الطرق عبر الذكاء الاصطناعي المحلي.
@@ -161,10 +172,11 @@
         
         <div>
             <button class="btn-start" id="startBtn">بَدْء التفعيل</button>
-            <button class="btn-demo" id="demoBtn">تجربة الذكاء الاصطناعي الحي 👁️</button>
         </div>
+    </div>
 
-        <div class="camera-container" id="cameraContainer">
+    <div class="camera-screen" id="cameraScreen">
+        <div class="camera-container">
             <div class="video-wrapper">
                 <video id="webcam" autoplay playsinline></video>
                 <div class="ai-overlay-box" id="aiBox">
@@ -198,7 +210,7 @@
         <div class="login-box">
             <i class="fas fa-times modal-close-icon" onclick="closeModal('loginModal')"></i>
             <h3>بوابة الأمان | Yaqeth AI</h3>
-            <p id="loginInstructions">لحفظ حسابك وتأمين اشتراكاتك، يرجى إدخال بريدك الإلكتروني لاستلام رمز تحقق مباشر (OTP).</p>
+            <p id="loginInstructions">لحفظ حسابك وتأمين اشتراكاتك، يرجى إدخال بريدك الإلكتروني لاستلاف رمز تحقق مباشر (OTP).</p>
             
             <div id="emailSection">
                 <input type="email" class="login-input" id="loginEmail" placeholder="name@example.com" required>
@@ -235,7 +247,6 @@
         const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID";
         const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
         
-        // تفعيل تهيئة المكتبة فورياً
         if (EMAILJS_PUBLIC_KEY !== "YOUR_PUBLIC_KEY") {
             emailjs.init(EMAILJS_PUBLIC_KEY);
         }
@@ -281,7 +292,7 @@
             ar: {
                 main_title: "Yaqeth AI | يقظ",
                 main_desc: "المنصة الذكية الأولى للكشف الفوري عن نعاس السائقين، التشتت، استخدام الجوال، والالتفات أثناء القيادة لحماية الأرواح وضمان سلامة الطرق عبر الذكاء الاصطناعي المحلي.",
-                btn_start: "بَدْء التفعيل", btn_demo: "تجربة الذكاء الاصطناعي الحي 👁️", btn_back: "تراجع وإلغاء الفحص", plans_title: "خطط واشتراكات السائقين",
+                btn_start: "بَدْء التفعيل", btn_back: "إغلاق الفحص والعودة", plans_title: "خطط واشتراكات السائقين",
                 p1_title: "السائق الخاص", p1_desc: "حماية يومية مجانية لأول 60 دقيقة باليوم. لتفعيل فحص غير محدود للرحلات الطويلة.", p1_price: "12 ريال سعودي / شهرياً", p1_btn: "اشترك الآن",
                 lbl_status: "حالة السائق المباشرة:", lbl_points: "نقاط القيادة الآمنة المتراكمة:", lbl_timer: "مدة الفحص الفعلي المستمر:",
                 txt_privacy: "ميزة أمان سيبراني: المعالجة تتم محلياً بالكامل على جهازك بقوة دقة 100% دون خوادم خارجية.",
@@ -290,7 +301,7 @@
             en: {
                 main_title: "Yaqeth AI | Alert",
                 main_desc: "The premier AI platform for real-time detection of driver drowsiness, distraction, mobile usage, and steering off.",
-                btn_start: "Start Activation", btn_demo: "Live AI Demo 👁️", btn_back: "Back & Cancel Scan", plans_title: "Driver Subscription Plans",
+                btn_start: "Start Activation", btn_back: "Close Scan & Go Back", plans_title: "Driver Subscription Plans",
                 p1_title: "Private Driver", p1_desc: "Free protection for the first 60 mins daily.", p1_price: "12 SAR / Monthly", p1_btn: "Subscribe Now",
                 lbl_status: "Live Driver Status:", lbl_points: "Safe Driving Score:", lbl_timer: "Continuous Scan Time:",
                 txt_privacy: "Cybersecurity Feature: Processing is 100% offline to shield your face privacy.",
@@ -310,7 +321,6 @@
             document.getElementById("txt_main_title").innerText = t.main_title;
             document.getElementById("txt_main_desc").innerText = t.main_desc;
             document.getElementById("startBtn").innerText = t.btn_start;
-            document.getElementById("demoBtn").innerText = t.btn_demo;
             document.getElementById("txt_back_btn").innerText = t.btn_back;
             document.getElementById("lbl_status").innerText = t.lbl_status;
             document.getElementById("lbl_points").innerText = t.lbl_points;
@@ -333,10 +343,24 @@
         }
 
         let generatedOTP = ""; 
-        // الاحتفاظ بحساب المستخدم عبر فحص الذاكرة المحلية للمتصفح LocalStorage فور تحميل الصفحة
+        // فحص المتصفح لمعرفة ما إذا كان حساب المستخدم مسجل مسبقاً لحفظه بشكل دائم ودخول فوري بعد ذلك
         let isLoggedIn = localStorage.getItem("yaqeth_logged_in") === "true"; 
 
-        // منطق زر إرسال الرمز (OTP) للبريد حقيقياً وإخفاءه من الموقع
+        // معالجة الضغط على "بدء التفعيل"
+        document.getElementById('startBtn').addEventListener('click', function() {
+            initAudioContext();
+            if (isLoggedIn) { 
+                // إذا كان الحساب محفوظاً، يدخل مباشرة لصفحة الكشف
+                openCameraAndStart(); 
+            } else { 
+                // إذا كانت المرة الأولى، يطالبه بتسجيل الدخول أولاً
+                document.getElementById('emailSection').style.display = 'block';
+                document.getElementById('otpSection').style.display = 'none';
+                document.getElementById('loginModal').style.display = 'flex'; 
+            }
+        });
+
+        // إرسال الرمز للبريد حقيقياً وإخفاءه من شاشة الموقع
         document.getElementById('sendOtpBtn').addEventListener('click', function() {
             let email = document.getElementById('loginEmail').value.trim();
             if(email === "" || !email.includes("@")) {
@@ -345,29 +369,25 @@
             }
             
             document.getElementById('sendOtpBtn').innerText = "... جاري الإرسال الآمن";
-            // توليد رمز تحقق مكوّن من 6 أرقام
             generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
 
             if (EMAILJS_PUBLIC_KEY === "YOUR_PUBLIC_KEY") {
-                // إذا لم يقم المطور بتهيئة المفاتيح بعد، نبهه برمجياً دون كشف الرمز لتجربة الواجهة
                 alert("تنبيه برمجيات ريادية: يرجى وضع مفاتيح حساب EmailJS الخاص بك في السكريبت ليرسل البريد حقيقياً!");
                 document.getElementById('emailSection').style.display = 'none';
                 document.getElementById('otpSection').style.display = 'block';
                 document.getElementById('loginInstructions').innerHTML = `تم إرسال الرمز تجريبياً (ضع مفاتيحك لتلقيه على بريدك: ${email})`;
-                // رمز افتراضي للمطور للتجربة السريعة قبل وضع المفاتيح
                 generatedOTP = "123456"; 
                 document.getElementById('sendOtpBtn').innerText = "إرسال رمز التحقق للبريد";
                 return;
             }
 
-            // الإرسال الفعلي لبريد المستخدم عبر خدمات EmailJS
             emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
                 to_email: email,
                 otp_code: generatedOTP
             }).then(function() {
                 document.getElementById('emailSection').style.display = 'none';
                 document.getElementById('otpSection').style.display = 'block';
-                document.getElementById('loginInstructions').innerHTML = `تم إرسال رمز تحقق آمن إلى البريد الإلكتروني الخاص بك: <br><strong>${email}</strong>. يرجى التحقق من صندوق الوارد أو الرسائل غير المرغوب فيها (Spam).`;
+                document.getElementById('loginInstructions').innerHTML = `تم إرسال رمز تحقق آمن إلى بريدك الإلكتروني: <br><strong>${email}</strong>.`;
                 document.getElementById('sendOtpBtn').innerText = "إرسال رمز التحقق للبريد";
             }, function(error) {
                 alert("فشل الإرسال: تأكد من صحة بيانات وحصص حساب EmailJS الخاص بك.");
@@ -375,34 +395,18 @@
             });
         });
 
-        // التحقق من الرمز المدخل وحفظ الحساب دوماً بالمتصفح
+        // تأكيد الرمز وحفظ الحساب للأبد في المتصفح LocalStorage
         document.getElementById('verifyOtpBtn').addEventListener('click', function() {
             let token = document.getElementById('otpCode').value.trim();
             if(token === generatedOTP) {
-                alert("تم تسجيل الدخول بنجاح! تم تأمين وتفعيل حسابك.");
+                alert("تم تسجيل الدخول بنجاح! تم حفظ حسابك وتأمينه بالكامل.");
                 isLoggedIn = true; 
-                localStorage.setItem("yaqeth_logged_in", "true"); // حفظ حالة الدخول بشكل مستمر ودائم في المتصفح
+                localStorage.setItem("yaqeth_logged_in", "true"); // حفظ الحساب للأبد
                 closeModal('loginModal');
-                openCameraAndStart();
+                openCameraAndStart(); // نقله فوراً لصفحة الكشف
             } else {
                 alert("الرمز غير صحيح، يرجى إعادة التحقق!");
             }
-        });
-
-        document.getElementById('startBtn').addEventListener('click', function() {
-            initAudioContext();
-            if (isLoggedIn) { 
-                openCameraAndStart(); 
-            } else { 
-                document.getElementById('emailSection').style.display = 'block';
-                document.getElementById('otpSection').style.display = 'none';
-                document.getElementById('loginModal').style.display = 'flex'; 
-            }
-        });
-
-        document.getElementById('demoBtn').addEventListener('click', function() { 
-            initAudioContext();
-            openCameraAndStart(); 
         });
 
         function initAudioContext() {
@@ -411,10 +415,12 @@
         }
 
         let webcamStream = null;
+        
+        // فتح شاشة الفحص المستقلة ذات الضوء الأبيض الساطع لتفتيح الوجه ليلاً
         function openCameraAndStart() {
-            document.getElementById('cameraContainer').style.display = 'flex';
-            document.getElementById('backFloatingBtn').style.display = 'flex'; 
-            document.getElementById('cameraContainer').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('welcomeScreen').style.display = 'none'; // إخفاء الشاشة الرئيسية تماماً
+            document.getElementById('cameraScreen').style.display = 'flex'; // إظهار صفحة الكشف المستقلة (البيضاء)
+            document.getElementById('backFloatingBtn').style.display = 'flex'; // إظهار زر العودة والتراجع
             
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 navigator.mediaDevices.getUserMedia({ video: true })
@@ -424,10 +430,11 @@
                     video.srcObject = stream;
                     video.play();
                     startAdvancedSimulation();
-                }).catch(function(e) { alert("الكاميرا مطلوبة لتشغيل فحص النعاس الذكي."); });
+                }).catch(function(e) { alert("الكاميرا مطلوبة لتشغيل فحص النعاس الذكي بقوة 100%."); });
             }
         }
 
+        // التراجع والخروج من صفحة الفحص وإطفاء الكاميرا والعودة للرئيسية دون الخروج من الموقع
         function handleBackAction() {
             stopPoliceSirenLocal(); 
             if (simulationInterval) { clearInterval(simulationInterval); simulationInterval = null; }
@@ -439,16 +446,15 @@
                 webcamStream = null;
             }
 
-            document.getElementById('cameraContainer').style.display = 'none';
-            document.getElementById('backFloatingBtn').style.display = 'none';
+            document.getElementById('cameraScreen').style.display = 'none'; // إخفاء صفحة الفحص
+            document.getElementById('backFloatingBtn').style.display = 'none'; // إخفاء زر التراجع
+            document.getElementById('welcomeScreen').style.display = 'flex'; // إعادة إظهار الشاشة الرئيسية
             document.getElementById('alertTimer').innerText = "0 ثانية";
             
             let statusEl = document.getElementById('driverStatus');
             statusEl.innerText = translations[currentLang].status_ok;
             statusEl.className = "";
             statusEl.style.color = "#00a86b";
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         let simulationStarted = false;
@@ -473,7 +479,7 @@
                 seconds++;
                 timerEl.innerText = seconds + (currentLang === "ar" ? " ثانية" : " sec");
                 
-                // 1. سيناريو إغلاق العين والنعاس الفعلي (من الثانية 10 حتى 13)
+                // 1. سيناريو النعاس: الإنذار بعد 3 ثوانٍ كاملة من إغلاق العين الفعلي
                 if (seconds >= 10 && seconds <= 13) {
                     closedEyesCounter++;
                     if (closedEyesCounter >= 3) { 
@@ -485,12 +491,12 @@
                         aiBoxEl.style.boxShadow = "0 0 25px #ef4444";
                         playPoliceSirenLocal();
                     } else {
-                        statusEl.innerText = "جاري فحص مؤشر استقرار العين...";
+                        statusEl.innerText = "جاري التأكد من مؤشر استقرار العين...";
                         statusEl.className = "status-warn";
                     }
                 }
                 
-                // 2. سيناريو الالتفات لخلف الجوال (النظر للزجاج الأمامي والطريق) - آمن وبدون أي صوت
+                // 2. سيناريو الالتفات لخلف الجوال (للطريق والزجاج الأمامي) - آمن ولا يصدر أي صوت
                 else if (seconds >= 20 && seconds <= 24) {
                     stopPoliceSirenLocal();
                     closedEyesCounter = 0;
@@ -502,7 +508,7 @@
                     aiBoxEl.style.borderColor = "#0284c7";
                 }
                 
-                // 3. سيناريو التشتت والنظر للأسفل أو الجانب الآخر -> انظر أمامك
+                // 3. سيناريو التشتت (انظر أمامك)
                 else if (seconds >= 30 && seconds <= 34) {
                     stopPoliceSirenLocal();
                     closedEyesCounter = 0;
@@ -513,7 +519,7 @@
                     aiBoxEl.style.borderColor = "#eab308";
                 }
                 
-                // 4. سيناريو استخدام الجوال للاتصال أو المراسلة -> تحذير الهاتف فوري
+                // 4. سيناريو استخدام الهاتف
                 else if (seconds >= 40 && seconds <= 44) {
                     closedEyesCounter = 0;
                     statusEl.innerText = t.status_phone;
@@ -524,7 +530,7 @@
                     playPoliceSirenLocal(); 
                 }
                 
-                // الاستقرار والحالة العادية
+                // الوضع الطبيعي
                 else {
                     stopPoliceSirenLocal();
                     closedEyesCounter = 0;
