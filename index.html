@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yaqeth AI | يقظ - نسخة GitHub & Vercel</title>
+    <title>Yaqeth AI | يقظ - نسخة GitHub & Vercel المحدثة</title>
     
+    <!-- استدعاء الخطوط وأيقونات الواجهة ومكتبة EmailJS الرسمية -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
@@ -131,10 +132,11 @@
         </div>
     </div>
 
+    <!-- بوابة الأمان - تسجيل الدخول -->
     <div class="login-modal" id="loginModal">
         <div class="login-box">
             <h3>بوابة الأمان | Yaqeth AI</h3>
-            <p id="loginInstructions">لحفظ حسابك وتأمين اشتراكاتك، يرجى إدخال بريدك الإلكتروني لاستلام رمز تحقق مباشر (OTP).</p>
+            <p id="loginInstructions">لحفظ حسابك وتأمين اشتراكاتك، يرجى إدخل بريدك الإلكتروني لاستلام رمز تحقق مباشر (OTP).</p>
             
             <div id="emailSection">
                 <input type="email" class="login-input" id="loginEmail" placeholder="name@example.com" required>
@@ -154,19 +156,20 @@
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
         const audioAlarm = document.getElementById('alertSound');
         
-        let generatedOTP = ""; // لتخزين الرمز مؤقتاً ومقارنته
+        let generatedOTP = ""; 
+        let isLoggedIn = false; // متغير ذكي لحفظ حالة تسجيل الدخول ومنع تكرار النافذة
 
         // ==========================================
         //  إعدادات الـ EmailJS لـ GitHub & Vercel
         // ==========================================
-        // افتح حساب مجاني في emailjs.com وضع مفاتيحك هنا لكي تصل الرسائل فوراً لبريدك
+        // افتح حساب مجاني في emailjs.com وضع مفاتيحك هنا لتصلك الرسائل للبريد فوراً
         const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY"; 
         const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID";
         const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
 
         emailjs.init(EMAILJS_PUBLIC_KEY);
 
-        // 1. توليد وإرسال الرمز الحقيقي للبريد
+        // 1. توليد وإرسال الرمز
         document.getElementById('sendOtpBtn').addEventListener('click', function() {
             let email = document.getElementById('loginEmail').value.trim();
             
@@ -177,50 +180,69 @@
 
             document.getElementById('sendOtpBtn').innerText = "... جاري إرسال الرمز الآمن";
             
-            // توليد رمز عشوائي مكون من 6 أرقام
+            // توليد رمز عشوائي
             generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
 
-            // إرسال الرمز عبر EmailJS مباشرة للمستخدم
+            // إرسال الرمز عبر سرفيس EmailJS
             emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
                 to_email: email,
                 otp_code: generatedOTP
             }).then(function() {
+                // عند نجاح الإرسال الحقيقي للبريد: تفتح واجهة إدخال الكود مباشرة دون إظهار الرمز على الشاشة!
                 document.getElementById('emailSection').style.display = 'none';
                 document.getElementById('otpSection').style.display = 'block';
-                document.getElementById('loginInstructions').innerHTML = `تم إرسال رمز تحقق سري إلى: <br><strong style="color:#00a86b;">${email}</strong>.`;
+                document.getElementById('loginInstructions').innerHTML = `تم إرسال رمز تحقق سري بنجاح إلى بريدك: <br><strong style="color:#00a86b;">${email}</strong>.`;
             }, function(error) {
-                // إذا لم تقم بتهيئة حساب EmailJS بعد، سيعمل كـ "محاكاة ذكية" لكي يفتح معك الموقع على Vercel بدون مشاكل
-                console.log("EmailJS Error, switching to Dev Mode. Code is: " + generatedOTP);
+                // إذا لم يتم ربط المفاتيح بعد، سيعمل وضع المطور لتسهيل التجربة
                 document.getElementById('emailSection').style.display = 'none';
                 document.getElementById('otpSection').style.display = 'block';
-                document.getElementById('loginInstructions').innerHTML = `[وضع التطوير] تم توليد رمز التحقق. أدخل الرمز التالي: <br><strong style="color:#00a86b;">${generatedOTP}</strong>`;
+                document.getElementById('loginInstructions').innerHTML = `[وضع التطوير] لم يتم ربط الحساب بـ EmailJS بعد. <br> الرمز السري هو: <strong style="color:#ea580c;">${generatedOTP}</strong>`;
             });
         });
 
-        // 2. التحقق من الرمز والافتتاح طبيعي
+        // 2. التحقق من الرمز
         document.getElementById('verifyOtpBtn').addEventListener('click', function() {
             let token = document.getElementById('otpCode').value.trim();
             
             if(token === generatedOTP) {
                 alert("تم التحقق بنجاح! مرحباً بك في Yaqeth AI");
+                isLoggedIn = true; // تثبيت حالة تسجيل الدخول بنجاح!
                 document.getElementById('loginModal').style.display = 'none'; 
+                
+                // تشغيل الكاميرا والمحاكاة فوراً بعد نجاح تسجيل الدخول لأول مرة
+                openCameraAndStart();
             } else {
                 alert("الرمز غير صحيح، يرجى إعادة المحاولة!");
             }
         });
 
+        // زر بدء التفعيل الذكي (يتحقق من الدخول أولاً)
         document.getElementById('startBtn').addEventListener('click', function() {
-            document.getElementById('emailSection').style.display = 'block';
-            document.getElementById('otpSection').style.display = 'none';
-            document.getElementById('loginModal').style.display = 'flex';
+            if (isLoggedIn) {
+                // إذا كان مسجل دخول مسبقاً، تفتح الكاميرا مباشرة ولا تظهر نافذة البريد مجدداً!
+                openCameraAndStart();
+            } else {
+                // إذا لم يسجل دخول، يفتح له النافذة
+                document.getElementById('emailSection').style.display = 'block';
+                document.getElementById('otpSection').style.display = 'none';
+                document.getElementById('loginModal').style.display = 'flex';
+            }
+        });
+
+        // زر التجربة الحية
+        document.getElementById('demoBtn').addEventListener('click', function() {
+            openCameraAndStart();
         });
 
         // ==========================================
-        //  تشغيل الكاميرا والمحاكاة الذكية المطورة
+        //  دالة تشغيل الكاميرا والمحاكاة الموحدة
         // ==========================================
-        document.getElementById('demoBtn').addEventListener('click', function() {
+        function openCameraAndStart() {
             document.getElementById('cameraContainer').style.display = 'flex';
             
+            // التمرير التلقائي لأسفل لرؤية الكاميرا بوضوح على الهواتف
+            document.getElementById('cameraContainer').scrollIntoView({ behavior: 'smooth' });
+
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 navigator.mediaDevices.getUserMedia({ video: true })
                 .then(function(stream) {
@@ -235,9 +257,15 @@
             } else {
                 alert("المتصفح لا يدعم بث الكاميرات المباشر.");
             }
-        });
+        }
+
+        // متغير لمنع تكرار تشغيل العداد أكثر من مرة
+        let simulationStarted = false;
 
         function startAdvancedSimulation() {
+            if (simulationStarted) return;
+            simulationStarted = true;
+
             let timerEl = document.getElementById('alertTimer');
             let statusEl = document.getElementById('driverStatus');
             let pointsEl = document.getElementById('drivingPoints');
@@ -264,7 +292,7 @@
                     pointsEl.innerText = currentPoints + " نقطة ⚠️";
                     pointsEl.style.color = "#ef4444";
                     
-                    audioAlarm.play().catch(e => console.log("Audio activation delayed"));
+                    audioAlarm.play().catch(e => console.log("Audio delayed"));
                 } 
                 else if (seconds % 10 === 4) {
                     statusEl.innerText = "مستيقظ ومتزن";
