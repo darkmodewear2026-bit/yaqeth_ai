@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     
     <style>
@@ -37,7 +38,6 @@
         .btn-demo { background: linear-gradient(135deg, #ea580c, #d97706); box-shadow: 0 4px 20px rgba(234, 88, 12, 0.4); }
         .btn-start:active, .btn-demo:active { transform: scale(0.95); }
 
-        /* تعديل ستايل زر التراجع العائم */
         .back-floating-btn { 
             display: none; position: fixed; bottom: 25px; right: 25px; 
             background: #1f2937; color: white; border: 2px solid #ef4444; 
@@ -122,7 +122,7 @@
 
     <div class="sidebar" id="sidebar">
         <div class="close-btn" onclick="toggleSidebar()"><i class="fas fa-times"></i></div>
-        <div class="sidebar-header-title"><i class="fas fa-credit-card"></i> <span id="txt_plans_title">خطط واشتراكات السائقين</span></div>
+        <div class="sidebar-header-title"><i class="fas fa-credit-card"></i> <span id="txt_plans_title">خطط واشتраكات السائقين</span></div>
         
         <div class="menu-item">
             <div class="item-title"><span id="txt_p1_title">السائق الخاص</span><span class="badge-plus">Yaqeth Plus</span></div>
@@ -178,7 +178,7 @@
                     <span id="driverStatus" style="color:#00a86b;">مستيقظ ومتزن</span>
                 </div>
                 <div class="status-row">
-                    <span id="lbl_points">نقاط القيادة الآمنة المتраكمة:</span>
+                    <span id="lbl_points">نقاط القيادة الآمنة المتراكمة:</span>
                     <span id="drivingPoints" style="color:#d97706;">100 نقطة ⭐</span>
                 </div>
                 <div class="status-row">
@@ -202,7 +202,7 @@
             
             <div id="emailSection">
                 <input type="email" class="login-input" id="loginEmail" placeholder="name@example.com" required>
-                <button type="button" class="btn-submit-login" id="sendOtpBtn">إرسال رمز التحقق الآمن</button>
+                <button type="button" class="btn-submit-login" id="sendOtpBtn">إرسال رمز التحقق للبريد</button>
             </div>
 
             <div id="otpSection">
@@ -230,6 +230,16 @@
     </div>
 
     <script>
+        // إعدادات مفاتيح EmailJS لربط الكود بحسابك الخاص وإرسال الرسائل حقيقياً
+        const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY"; 
+        const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID";
+        const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
+        
+        // تفعيل تهيئة المكتبة فورياً
+        if (EMAILJS_PUBLIC_KEY !== "YOUR_PUBLIC_KEY") {
+            emailjs.init(EMAILJS_PUBLIC_KEY);
+        }
+
         let audioCtx = null;
         let alarmInterval = null;
 
@@ -250,7 +260,7 @@
                 osc.frequency.linearRampToValueAtTime(1350, now + 0.2); 
                 osc.frequency.linearRampToValueAtTime(850, now + 0.4);
 
-                gainNode.gain.setValueAtTime(1.0, now); // رفع الصوت لأعلى درجة 100%
+                gainNode.gain.setValueAtTime(1.0, now); 
                 gainNode.gain.linearRampToValueAtTime(0.0, now + 0.4); 
 
                 osc.connect(gainNode);
@@ -318,17 +328,76 @@
         }
 
         function processPayment() {
-            alert("Success!");
+            alert("تمت عملية الدفع ومصادقة الباقة بنجاح!");
             closeModal("paymentModal");
         }
 
         let generatedOTP = ""; 
-        let isLoggedIn = false; 
+        // الاحتفاظ بحساب المستخدم عبر فحص الذاكرة المحلية للمتصفح LocalStorage فور تحميل الصفحة
+        let isLoggedIn = localStorage.getItem("yaqeth_logged_in") === "true"; 
+
+        // منطق زر إرسال الرمز (OTP) للبريد حقيقياً وإخفاءه من الموقع
+        document.getElementById('sendOtpBtn').addEventListener('click', function() {
+            let email = document.getElementById('loginEmail').value.trim();
+            if(email === "" || !email.includes("@")) {
+                alert("يرجى إدخال بريد إلكتروني صحيح وصالح!");
+                return;
+            }
+            
+            document.getElementById('sendOtpBtn').innerText = "... جاري الإرسال الآمن";
+            // توليد رمز تحقق مكوّن من 6 أرقام
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+
+            if (EMAILJS_PUBLIC_KEY === "YOUR_PUBLIC_KEY") {
+                // إذا لم يقم المطور بتهيئة المفاتيح بعد، نبهه برمجياً دون كشف الرمز لتجربة الواجهة
+                alert("تنبيه برمجيات ريادية: يرجى وضع مفاتيح حساب EmailJS الخاص بك في السكريبت ليرسل البريد حقيقياً!");
+                document.getElementById('emailSection').style.display = 'none';
+                document.getElementById('otpSection').style.display = 'block';
+                document.getElementById('loginInstructions').innerHTML = `تم إرسال الرمز تجريبياً (ضع مفاتيحك لتلقيه على بريدك: ${email})`;
+                // رمز افتراضي للمطور للتجربة السريعة قبل وضع المفاتيح
+                generatedOTP = "123456"; 
+                document.getElementById('sendOtpBtn').innerText = "إرسال رمز التحقق للبريد";
+                return;
+            }
+
+            // الإرسال الفعلي لبريد المستخدم عبر خدمات EmailJS
+            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                to_email: email,
+                otp_code: generatedOTP
+            }).then(function() {
+                document.getElementById('emailSection').style.display = 'none';
+                document.getElementById('otpSection').style.display = 'block';
+                document.getElementById('loginInstructions').innerHTML = `تم إرسال رمز تحقق آمن إلى البريد الإلكتروني الخاص بك: <br><strong>${email}</strong>. يرجى التحقق من صندوق الوارد أو الرسائل غير المرغوب فيها (Spam).`;
+                document.getElementById('sendOtpBtn').innerText = "إرسال رمز التحقق للبريد";
+            }, function(error) {
+                alert("فشل الإرسال: تأكد من صحة بيانات وحصص حساب EmailJS الخاص بك.");
+                document.getElementById('sendOtpBtn').innerText = "إرسال رمز التحقق للبريد";
+            });
+        });
+
+        // التحقق من الرمز المدخل وحفظ الحساب دوماً بالمتصفح
+        document.getElementById('verifyOtpBtn').addEventListener('click', function() {
+            let token = document.getElementById('otpCode').value.trim();
+            if(token === generatedOTP) {
+                alert("تم تسجيل الدخول بنجاح! تم تأمين وتفعيل حسابك.");
+                isLoggedIn = true; 
+                localStorage.setItem("yaqeth_logged_in", "true"); // حفظ حالة الدخول بشكل مستمر ودائم في المتصفح
+                closeModal('loginModal');
+                openCameraAndStart();
+            } else {
+                alert("الرمز غير صحيح، يرجى إعادة التحقق!");
+            }
+        });
 
         document.getElementById('startBtn').addEventListener('click', function() {
             initAudioContext();
-            if (isLoggedIn) { openCameraAndStart(); } 
-            else { document.getElementById('loginModal').style.display = 'flex'; }
+            if (isLoggedIn) { 
+                openCameraAndStart(); 
+            } else { 
+                document.getElementById('emailSection').style.display = 'block';
+                document.getElementById('otpSection').style.display = 'none';
+                document.getElementById('loginModal').style.display = 'flex'; 
+            }
         });
 
         document.getElementById('demoBtn').addEventListener('click', function() { 
@@ -344,7 +413,7 @@
         let webcamStream = null;
         function openCameraAndStart() {
             document.getElementById('cameraContainer').style.display = 'flex';
-            document.getElementById('backFloatingBtn').style.display = 'flex'; // إظهار الزر بعد إصلاح المعرّف
+            document.getElementById('backFloatingBtn').style.display = 'flex'; 
             document.getElementById('cameraContainer').scrollIntoView({ behavior: 'smooth' });
             
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -355,7 +424,7 @@
                     video.srcObject = stream;
                     video.play();
                     startAdvancedSimulation();
-                }).catch(function(e) { alert("Camera Access Required."); });
+                }).catch(function(e) { alert("الكاميرا مطلوبة لتشغيل فحص النعاس الذكي."); });
             }
         }
 
@@ -384,7 +453,7 @@
 
         let simulationStarted = false;
         let simulationInterval = null;
-        let closedEyesCounter = 0; // عداد ثواني إغلاق العين الفعلي
+        let closedEyesCounter = 0; 
 
         function startAdvancedSimulation() {
             if (simulationStarted) return;
@@ -404,13 +473,10 @@
                 seconds++;
                 timerEl.innerText = seconds + (currentLang === "ar" ? " ثانية" : " sec");
                 
-                // هندسة المحاكاة الذكية حسب السيناريوهات الحقيقية على الطريق:
-                
-                // 1. سيناريو إغلاق العين والنعاس (يبدأ من الثانية 10)
+                // 1. سيناريو إغلاق العين والنعاس الفعلي (من الثانية 10 حتى 13)
                 if (seconds >= 10 && seconds <= 13) {
                     closedEyesCounter++;
-                    
-                    if (closedEyesCounter >= 3) { // إطلاق التحذير بعد 3 ثوانٍ كاملة من الإغلاق
+                    if (closedEyesCounter >= 3) { 
                         statusEl.innerText = t.status_danger;
                         statusEl.className = "status-danger";
                         aiTagEl.innerText = t.status_ai_danger;
@@ -419,13 +485,12 @@
                         aiBoxEl.style.boxShadow = "0 0 25px #ef4444";
                         playPoliceSirenLocal();
                     } else {
-                        // تعبيرات وجه أو إغلاق مؤقت (أقل من 3 ثوانٍ) -> لا يوجد صوت مزعج لكي لا يعصب السائق
-                        statusEl.innerText = "جاري التأكد من مؤشر العين...";
+                        statusEl.innerText = "جاري فحص مؤشر استقرار العين...";
                         statusEl.className = "status-warn";
                     }
                 }
                 
-                // 2. سيناريو الالتفات لخلف الجوال (للزجاج الأمامي والطريق) - لا صوت ولا إنذار
+                // 2. سيناريو الالتفات لخلف الجوال (النظر للزجاج الأمامي والطريق) - آمن وبدون أي صوت
                 else if (seconds >= 20 && seconds <= 24) {
                     stopPoliceSirenLocal();
                     closedEyesCounter = 0;
@@ -437,7 +502,7 @@
                     aiBoxEl.style.borderColor = "#0284c7";
                 }
                 
-                // 3. سيناريو التشتت والنظر لمكان آخر (يمين/يسار) -> انظر أمامك
+                // 3. سيناريو التشتت والنظر للأسفل أو الجانب الآخر -> انظر أمامك
                 else if (seconds >= 30 && seconds <= 34) {
                     stopPoliceSirenLocal();
                     closedEyesCounter = 0;
@@ -448,7 +513,7 @@
                     aiBoxEl.style.borderColor = "#eab308";
                 }
                 
-                // 4. سيناريو مسك الجوال للمراسلة أو الاتصال -> تحذير الهاتف
+                // 4. سيناريو استخدام الجوال للاتصال أو المراسلة -> تحذير الهاتف فوري
                 else if (seconds >= 40 && seconds <= 44) {
                     closedEyesCounter = 0;
                     statusEl.innerText = t.status_phone;
@@ -456,10 +521,10 @@
                     aiTagEl.innerText = "🚨 استخدام الجوال! 🚨";
                     aiTagEl.style.background = "#ef4444";
                     aiBoxEl.style.borderColor = "#ef4444";
-                    playPoliceSirenLocal(); // تشغيل فوري للإنذار لأن استخدام الجوال خطر لحظي
+                    playPoliceSirenLocal(); 
                 }
                 
-                // العودة للحالة الطبيعية المستقرة
+                // الاستقرار والحالة العادية
                 else {
                     stopPoliceSirenLocal();
                     closedEyesCounter = 0;
