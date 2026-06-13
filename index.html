@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yaqeth AI | يقظ - النسخة المطورة</title>
+    <title>Yaqeth AI | يقظ - النسخة الكاملة</title>
     
+    <!-- استدعاء الخطوط وأيقونات الواجهة ومكتبة Supabase الرسمية -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
         body { background-color: #0b0f19; color: #ffffff; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         
-        /* شاشة الترحيب والواجهة */
         .welcome-screen {
             position: relative; width: 100%; min-height: 100vh; display: flex; flex-direction: column;
             justify-content: center; align-items: center; text-align: center; padding: 40px 20px;
@@ -24,7 +25,6 @@
         .welcome-title { font-size: 2.8rem; color: #00a86b; margin-bottom: 15px; font-weight: 700; text-shadow: 0 0 10px rgba(0, 168, 107, 0.3); }
         .welcome-text { font-size: 1.2rem; max-width: 600px; margin-bottom: 35px; line-height: 1.8; color: #e2e8f0; }
         
-        /* الأزرار */
         .btn-start, .btn-demo {
             color: #ffffff !important; border: none; padding: 15px 45px; font-size: 1.3rem;
             font-weight: bold; border-radius: 50px; cursor: pointer; margin: 10px;
@@ -34,7 +34,6 @@
         .btn-demo { background: linear-gradient(135deg, #ea580c, #d97706); box-shadow: 0 4px 20px rgba(234, 88, 12, 0.4); }
         .btn-start:active, .btn-demo:active { transform: scale(0.95); }
 
-        /* حاوية الكاميرا ونظام المعالجة المحلية */
         .camera-container {
             display: none; flex-direction: column; align-items: center; margin-top: 30px;
             background: #111827; padding: 20px; border-radius: 20px; border: 2px solid #00a86b;
@@ -43,23 +42,19 @@
         .video-wrapper { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000; }
         video { width: 100%; height: auto; transform: scaleX(-1); display: block; }
         
-        /* إطار الذكاء الاصطناعي فوق الوجه */
         .ai-overlay-box { position: absolute; border: 3px solid #00a86b; border-radius: 8px; display: block; box-shadow: 0 0 15px #00a86b; top: 25%; left: 30%; width: 40%; height: 45%; transition: 0.3s ease; }
         .ai-status-tag { position: absolute; top: -35px; right: 0; background: #00a86b; color: white; padding: 2px 10px; border-radius: 5px; font-size: 0.9rem; font-weight: bold; white-space: nowrap; transition: background 0.3s; }
         
-        /* لوحة المؤشرات */
         .status-panel { width: 100%; margin-top: 15px; background: #1f2937; padding: 12px; border-radius: 10px; font-weight: bold; display: flex; flex-direction: column; gap: 8px; text-align: right; }
         .status-row { display: flex; justify-content: space-between; width: 100%; border-bottom: 1px solid #374151; padding-bottom: 5px; }
         .status-row:last-child { border: none; padding-bottom: 0; }
         .status-danger { color: #ef4444; animation: blink 0.5s infinite alternate; }
         
-        /* إشعار خصوصية البيانات */
         .privacy-note { font-size: 0.8rem; color: #9ca3af; margin-top: 10px; display: flex; align-items: center; gap: 5px; }
         .privacy-note i { color: #00a86b; }
 
         @keyframes blink { from { opacity: 1; } to { opacity: 0.3; } }
 
-        /* الأزرار الجانبية والقائمة */
         .menu-btn { position: absolute; top: 25px; left: 25px; font-size: 1.5rem; color: #ffffff; cursor: pointer; z-index: 100; background: rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 50px; }
         .sidebar { position: fixed; top: 0; left: -350px; width: 320px; height: 100vh; background-color: #111827; box-shadow: 5px 0 25px rgba(0,0,0,0.5); z-index: 999; transition: 0.4s ease; padding: 80px 20px 20px 20px; overflow-y: auto; border-right: 2px solid #1f2937; }
         .sidebar.active { left: 0; }
@@ -69,7 +64,6 @@
         .badge-free { background-color: #059669; color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 20px; }
         .badge-pro { background-color: #d97706; color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 20px; }
         
-        /* النوافذ المنبثقة المتطورة لتسجيل الدخول الفعلي */
         .login-modal { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #0b0f19; z-index: 999999; justify-content: center; align-items: center; padding: 20px; }
         .login-box { background-color: #111827; padding: 45px 30px; border-radius: 16px; width: 100%; max-width: 420px; border: 2px solid #00a86b; text-align: center; box-shadow: 0 10px 40px rgba(0, 168, 107, 0.2); }
         .login-box h3 { margin-bottom: 15px; color: #ffffff; font-size: 1.5rem; font-weight: 700; }
@@ -78,14 +72,15 @@
         .login-input:focus { border-color: #00a86b; }
         .btn-submit-login { width: 100%; background: linear-gradient(135deg, #00a86b, #0284c7); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(0, 168, 107, 0.3); }
         
-        /* حقل كود التحقق OTP (مخفي افتراضياً) */
         #otpSection { display: none; margin-top: 15px; }
     </style>
 </head>
 <body>
 
+    <!-- زر القائمة الجانبية -->
     <div class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
 
+    <!-- القائمة الجانبية -->
     <div class="sidebar" id="sidebar">
         <div class="close-btn" onclick="toggleSidebar()"><i class="fas fa-times"></i></div>
         <div class="menu-item">
@@ -98,6 +93,7 @@
         </div>
     </div>
 
+    <!-- الواجهة الأساسية للموقع -->
     <div class="welcome-screen">
         <h1 class="welcome-title">Yaqeth AI | يقظ</h1>
         <p class="welcome-text">
@@ -109,6 +105,7 @@
             <button class="btn-demo" id="demoBtn">تجربة الذكاء الاصطناعي الحي 👁️</button>
         </div>
 
+        <!-- حاوية الفحص ونظام الكاميرا والمؤشرات المضافة -->
         <div class="camera-container" id="cameraContainer">
             <div class="video-wrapper">
                 <video id="webcam" autoplay playsinline></video>
@@ -139,16 +136,19 @@
         </div>
     </div>
 
+    <!-- بوابة الأمان - نافذة تسجيل الدخول برمز OTP الحقيقي عبر Supabase -->
     <div class="login-modal" id="loginModal">
         <div class="login-box">
             <h3>بوابة الأمان | Yaqeth AI</h3>
-            <p id="loginInstructions">لحفظ حسابك وتأمين اشتراكاتك في باقات <strong>Yaqeth Pro</strong>، يرجى إدخال بريدك الإلكتروني لاستلام رمز تحقق مباشر.</p>
+            <p id="loginInstructions">لحفظ حسابك وتأمين اشتراكاتك في باقات <strong>Yaqeth Pro</strong>، يرجى إدخال بريدك الإلكتروني لاستلاف رمز تحقق مباشر.</p>
             
+            <!-- مرحلة طلب البريد الإلكتروني -->
             <div id="emailSection">
                 <input type="email" class="login-input" id="loginEmail" placeholder="name@example.com" required>
                 <button type="button" class="btn-submit-login" id="sendOtpBtn">إرسال رمز التحقق الآمن</button>
             </div>
 
+            <!-- مرحلة إدخال كود الـ OTP المكون من 6 أرقام -->
             <div id="otpSection">
                 <input type="text" class="login-input" id="otpCode" placeholder="أدخل الرمز المكون من 6 أرقام" maxlength="6">
                 <button type="button" class="btn-submit-login" id="verifyOtpBtn">تأكيد الرمز والدخول للمنصة</button>
@@ -156,51 +156,83 @@
         </div>
     </div>
 
+    <!-- استدعاء ملف صوت التنبيه التلقائي (Audio Alert Siren) -->
     <audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" preload="auto" loop></audio>
 
     <script>
-        // إعدادات تفعيل الصوت والقائمة
+        // إعدادات وتوابع النظام الجانبي
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
         const audioAlarm = document.getElementById('alertSound');
 
-        // ==========================================
-        //  منطق تسجيل الدخول الفعلي وإرسال الرموز (OTP)
-        // ==========================================
+        // ========================================================
+        //  إعدادات وتفعيل الربط الفعلي بقاعدة بيانات ومصادقة Supabase
+        // ========================================================
         
-        // 1. عند الضغط على إرسال الرمز
-        document.getElementById('sendOtpBtn').addEventListener('click', function() {
+        // ضع روابط مشروعك الحقيقي المنسوخ من لوحة تحكم Supabase هنا:
+        const SUPABASE_URL = "https://your-project-id.supabase.co"; // ضع الرابط هنا
+        const SUPABASE_ANON_KEY = "your-anon-key"; // ضع المفتاح هنا
+        
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // 1. الضغط على زر إرسال رمز OTP الحقيقي للبريد الإلكتروني
+        document.getElementById('sendOtpBtn').addEventListener('click', async function() {
             let email = document.getElementById('loginEmail').value.trim();
             
             if(email === "" || !email.includes("@")) {
-                alert("يرجى إدخال بريد إلكتروني صحيح لاستلام الرمز!");
+                alert("يرجى إدخال بريد إلكتروني صحيح ومكتمل لاستلام الرمز الفعلي!");
                 return;
             }
 
-            // محاكاة الاتصال الفعلي بالـ API لإرسال رمز OTP للمستخدم
-            document.getElementById('sendOtpBtn').innerText = "... جاري الإرسال والأرشفة الآمنة";
+            document.getElementById('sendOtpBtn').innerText = "... جاري معالجة وإرسال الرمز الآمن";
             
-            setTimeout(() => {
-                // الانتقال لواجهة إدخال الرمز
+            // طلب إرسال الرمز الحقيقي من خوادم Supabase إلى بريد المستخدم
+            let { data, error } = await supabaseClient.auth.signInWithOtp({
+                email: email,
+                options: {
+                    shouldCreateUser: true // ينشئ له حساباً جديداً تلقائياً إن لم يكن مسجلاً مسبقاً
+                }
+            });
+
+            if (error) {
+                alert("حدث خطأ في الاتصال بالخادم: " + error.message);
+                document.getElementById('sendOtpBtn').innerText = "إرسال رمز التحقق الآمن";
+            } else {
+                // نقل الواجهة إلى شاشة إدخال الكود المستلم
                 document.getElementById('emailSection').style.display = 'none';
                 document.getElementById('otpSection').style.display = 'block';
-                document.getElementById('loginInstructions').innerHTML = `تم إرسال رمز تحقق سري ومؤقت إلى: <br><strong style="color:#00a86b;">${email}</strong>. يرجى التحقق وإدخاله بالأسفل.`;
-            }, 1500);
-        });
-
-        // 2. عند الضغط على تأكيد الرمز والدخول
-        document.getElementById('verifyOtpBtn').addEventListener('click', function() {
-            let code = document.getElementById('otpCode').value.trim();
-            
-            // في البيئة الحقيقية يتم التحقق من صحة الكود عبر السيرفر، هنا نضع التحقق لـ 6 أرقام
-            if(code.length === 6) {
-                alert("تم التحقق بنجاح وتأمين جلسة العمل بالبصمة الرقمية الموحدة!");
-                document.getElementById('loginModal').style.display = 'none'; // دخول المنصة طبيعي
-            } else {
-                alert("الرمز غير صحيح أو غير مكتمل، يرجى إدخال الكود المكون من 6 أرقام والمكتوب في رسالتك بشكل صحيح!");
+                document.getElementById('loginInstructions').innerHTML = `تم إرسال رمز تحقق سري بنجاح إلى: <br><strong style="color:#00a86b;">${email}</strong>. يرجى مراجعة البريد الوارد أو مجلد الـ (Spam).`;
             }
         });
 
-        // لإعادة إظهار نافذة تسجيل الدخول من زر "بدء التفعيل"
+        // 2. الضغط على زر تأكيد الرمز المكون من 6 أرقام المبعوث للبريد
+        document.getElementById('verifyOtpBtn').addEventListener('click', async function() {
+            let email = document.getElementById('loginEmail').value.trim();
+            let token = document.getElementById('otpCode').value.trim();
+            
+            if(token.length !== 6) {
+                alert("يرجى كتابة الرمز المكون من 6 أرقام بالكامل!");
+                return;
+            }
+
+            document.getElementById('verifyOtpBtn').innerText = "... جاري التدقيق والتوثيق الآمن";
+
+            // فحص صحة الرمز المدخل عبر السيرفر
+            let { data, error } = await supabaseClient.auth.verifyOtp({
+                email: email,
+                token: token,
+                type: 'email'
+            });
+
+            if (error) {
+                alert("الرمز المكتوب غير صحيح أو قد انتهت صلاحيته المؤقتة: " + error.message);
+                document.getElementById('verifyOtpBtn').innerText = "تأكيد الرمز والدخول للمنصة";
+            } else {
+                alert("تم التوثيق والتحقق الثنائي بنجاح! تم فك تشفير وصولك لـ Yaqeth AI.");
+                document.getElementById('loginModal').style.display = 'none'; // فتح الموقع بالكامل
+            }
+        });
+
+        // لإظهار نافذة تسجيل الدخول عند الضغط على بدء التفعيل
         document.getElementById('startBtn').addEventListener('click', function() {
             document.getElementById('emailSection').style.display = 'block';
             document.getElementById('otpSection').style.display = 'none';
@@ -208,28 +240,29 @@
         });
 
         // ==========================================
-        //      تفعيل ميزات الذكاء الاصطناعي الحي والكاميرا
+        //  تشغيل كاميرا الويب الحقيقية ونظام المحاكاة المطورة
         // ==========================================
         document.getElementById('demoBtn').addEventListener('click', function() {
             document.getElementById('cameraContainer').style.display = 'flex';
             
+            // تفعيل جلب بث الكاميرا الحقيقي عبر الـ WebRTC API
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 navigator.mediaDevices.getUserMedia({ video: true })
                 .then(function(stream) {
                     let video = document.getElementById('webcam');
                     video.srcObject = stream;
                     video.play();
-                    startAdvancedSimulation(); // تشغيل النظام ومحاكاة التنبيهات الصوتية
+                    startAdvancedSimulation(); // بدء عداد المحاكاة والتنبيهات الصوتية الحية
                 })
                 .catch(function(error) {
-                    alert("الكاميرا بحاجة إلى إذن وصول لتشغيل ميزة الفحص المحلي.");
+                    alert("نظام الفحص بحاجة إلى صلاحية الوصول للكاميرا للعمل المحلي.");
                 });
             } else {
-                alert("المتصفح لا يدعم الـ WebRTC API المباشر لتشغيل الكاميرات.");
+                alert("المتصفح الحالي لا يدعم فتح الكاميرات والبث الحي.");
             }
         });
 
-        // محاكاة متطورة تشمل نظام النقاط التفاعلي والتنبيهات الصوتية الحادة للنعاس والتشتت
+        // دالة تشغيل نظام المؤشرات التفاعلي، النقاط، وإطلاق صافرات الإنذار الصوتية
         function startAdvancedSimulation() {
             let timerEl = document.getElementById('alertTimer');
             let statusEl = document.getElementById('driverStatus');
@@ -244,25 +277,25 @@
                 seconds++;
                 timerEl.innerText = seconds + " ثانية";
                 
-                // حالة 1: رصد خطر نعاس وإغلاق الأعين (كل 9 ثواني مثلاً)
+                // حالة رصد خطر النعاس: الأرقام التي تقبل القسمة على 10 (مثل ثانية 10، 20..)
                 if (seconds % 10 === 0) {
-                    statusEl.innerText = "🚨 خطر: تم رصد إغلاق كامل للعينين!";
+                    statusEl.innerText = "🚨 خطر: تم رصد إغلاق كامل ومستمر للعينين!";
                     statusEl.className = "status-danger";
                     aiTagEl.innerText = "⚠️ حالة طارئة: نعاس مكتشف!";
                     aiTagEl.style.background = "#ef4444";
                     aiBoxEl.style.borderColor = "#ef4444";
                     aiBoxEl.style.boxShadow = "0 0 25px #ef4444";
                     
-                    // خصم من نقاط القيادة الآمنة بسبب المخالفة
+                    // خصم من نقاط القيادة الآمنة
                     currentPoints -= 15;
+                    if(currentPoints < 0) currentPoints = 0;
                     pointsEl.innerText = currentPoints + " نقطة ⚠️";
                     pointsEl.style.color = "#ef4444";
                     
-                    // تشغيل ميزة التنبيه الصوتي الحاد لتنبيه السائق فوراً
-                    audioAlarm.play().catch(e => console.log("Audio play deferred"));
-                    
+                    // إطلاق صافرة الإنذار الصوتي الحادة لإيقاظ السائق
+                    audioAlarm.play().catch(e => console.log("Audio waiting for interaction"));
                 } 
-                // حالة 2: عودة السائق للتركيز والانتباه
+                // حالة استعادة الوعي والانتباه (بعدها بـ 4 ثواني تلقائياً)
                 else if (seconds % 10 === 4) {
                     statusEl.innerText = "مستيقظ ومتزن";
                     statusEl.className = "";
@@ -272,11 +305,10 @@
                     aiBoxEl.style.borderColor = "#00a86b";
                     aiBoxEl.style.boxShadow = "0 0 15px #00a86b";
                     
-                    // استعادة ثبات النقاط
                     pointsEl.style.color = "#d97706";
                     pointsEl.innerText = currentPoints + " نقطة ⭐";
                     
-                    // إيقاف التنبيه الصوتي فور عودة التركيز
+                    // إيقاف صافرة الإنذار الصوتية
                     audioAlarm.pause();
                     audioAlarm.currentTime = 0;
                 }
