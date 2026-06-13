@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yaqeth AI | يقظ - نسخة GitHub & Vercel المحدثة</title>
+    <title>Yaqeth AI | يقظ</title>
     
-    <!-- استدعاء الخطوط وأيقونات الواجهة ومكتبة EmailJS الرسمية -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
@@ -16,6 +15,11 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
         body { background-color: #0b0f19; color: #ffffff; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         
+        /* شريط التموضع العلوي للغات */
+        .top-bar { position: absolute; top: 25px; right: 25px; z-index: 100; display: flex; align-items: center; gap: 10px; }
+        .lang-select { background: rgba(31, 41, 55, 0.9); color: white; border: 1px solid #00a86b; padding: 8px 15px; border-radius: 50px; font-weight: bold; outline: none; cursor: pointer; font-size: 0.9rem; }
+        .lang-select option { background: #111827; color: white; }
+
         .welcome-screen {
             position: relative; width: 100%; min-height: 100vh; display: flex; flex-direction: column;
             justify-content: center; align-items: center; text-align: center; padding: 40px 20px;
@@ -51,49 +55,92 @@
         .status-danger { color: #ef4444; animation: blink 0.5s infinite alternate; }
         
         .privacy-note { font-size: 0.8rem; color: #9ca3af; margin-top: 10px; display: flex; align-items: center; gap: 5px; }
-        .privacy-note i { color: #00a86b; }
-
-        @keyframes blink { from { opacity: 1; } to { opacity: 0.3; } }
 
         .menu-btn { position: absolute; top: 25px; left: 25px; font-size: 1.5rem; color: #ffffff; cursor: pointer; z-index: 100; background: rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 50px; }
-        .sidebar { position: fixed; top: 0; left: -350px; width: 320px; height: 100vh; background-color: #111827; box-shadow: 5px 0 25px rgba(0,0,0,0.5); z-index: 999; transition: 0.4s ease; padding: 80px 20px 20px 20px; overflow-y: auto; border-right: 2px solid #1f2937; }
+        .sidebar { position: fixed; top: 0; left: -350px; width: 325px; height: 100vh; background-color: #111827; box-shadow: 5px 0 25px rgba(0,0,0,0.5); z-index: 999; transition: 0.4s ease; padding: 80px 15px 20px 15px; overflow-y: auto; border-right: 2px solid #1f2937; text-align: right; }
         .sidebar.active { left: 0; }
-        .close-btn { position: absolute; top: 25px; right: 25px; font-size: 1.5rem; cursor: pointer; color: #9ca3af; }
-        .menu-item { background-color: #1f2937; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #374151; text-align: right; }
-        .item-title { font-weight: bold; font-size: 1.1rem; color: #ffffff; display: flex; justify-content: space-between; align-items: center; }
-        .badge-free { background-color: #059669; color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 20px; }
-        .badge-pro { background-color: #d97706; color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 20px; }
+        body.en-lang .sidebar { left: auto; right: -350px; border-right: none; border-left: 2px solid #1f2937; text-align: left; }
+        body.en-lang .sidebar.active { right: 0; left: auto; }
         
-        .login-modal { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #0b0f19; z-index: 999999; justify-content: center; align-items: center; padding: 20px; }
-        .login-box { background-color: #111827; padding: 45px 30px; border-radius: 16px; width: 100%; max-width: 420px; border: 2px solid #00a86b; text-align: center; box-shadow: 0 10px 40px rgba(0, 168, 107, 0.2); }
-        .login-box h3 { margin-bottom: 15px; color: #ffffff; font-size: 1.5rem; font-weight: 700; }
-        .login-box p { font-size: 0.9rem; color: #9ca3af; margin-bottom: 25px; line-height: 1.6; }
-        .login-input { width: 100%; padding: 14px; margin-bottom: 20px; background-color: #1f2937; border: 1px solid #4b5563; border-radius: 8px; color: white; text-align: center; font-size: 1.05rem; outline: none; }
-        .login-input:focus { border-color: #00a86b; }
-        .btn-submit-login { width: 100%; background: linear-gradient(135deg, #00a86b, #0284c7); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(0, 168, 107, 0.3); }
+        .close-btn { position: absolute; top: 25px; right: 25px; font-size: 1.5rem; cursor: pointer; color: #9ca3af; }
+        body.en-lang .close-btn { right: auto; left: 25px; }
+        
+        .sidebar-header-title { font-weight: bold; color: #00a86b; font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid #1f2937; padding-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+
+        /* ستايل كروت الاشتراكات المتطورة */
+        .menu-item { background-color: #1f2937; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #374151; display: flex; flex-direction: column; gap: 8px; }
+        .item-title { font-weight: bold; font-size: 1.05rem; color: #ffffff; display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .badge-plus { background-color: #0284c7; color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 20px; font-weight: bold; }
+        .badge-pro { background-color: #ea580c; color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 20px; font-weight: bold; }
+        .item-price { font-size: 0.95rem; color: #00a86b; font-weight: bold; margin-top: 2px; }
+        .btn-subscribe { width: 100%; background: #111827; border: 1px solid #4b5563; color: white; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85rem; margin-top: 5px; transition: 0.2s; }
+        .btn-subscribe:hover { background: #00a86b; border-color: #00a86b; }
+        
+        /* النوافذ المنبثقة للتوثيق والدفع */
+        .login-modal, .payment-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(11, 15, 25, 0.95); z-index: 999999; justify-content: center; align-items: center; padding: 20px; }
+        .login-box, .payment-box { background-color: #111827; padding: 35px 25px; border-radius: 16px; width: 100%; max-width: 420px; border: 2px solid #00a86b; text-align: center; box-shadow: 0 10px 40px rgba(0, 168, 107, 0.2); position: relative; }
+        .login-box h3, .payment-box h3 { margin-bottom: 12px; color: #ffffff; font-size: 1.4rem; font-weight: 700; }
+        .login-box p, .payment-box p { font-size: 0.9rem; color: #9ca3af; margin-bottom: 20px; line-height: 1.6; }
+        .login-input, .payment-input { width: 100%; padding: 12px; margin-bottom: 15px; background-color: #1f2937; border: 1px solid #4b5563; border-radius: 8px; color: white; text-align: center; font-size: 1rem; outline: none; }
+        .login-input:focus, .payment-input:focus { border-color: #00a86b; }
+        .btn-submit-login, .btn-submit-payment { width: 100%; background: linear-gradient(135deg, #00a86b, #0284c7); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.05rem; }
+        .modal-close-icon { position: absolute; top: 15px; right: 15px; cursor: pointer; color: #9ca3af; font-size: 1.2rem; }
         
         #otpSection { display: none; margin-top: 15px; }
+        .payment-row { display: flex; gap: 10px; }
     </style>
 </head>
 <body>
+
+    <div class="top-bar">
+        <i class="fas fa-globe" style="color: #00a86b;"></i>
+        <select class="lang-select" id="langSelect" onchange="changeLanguage(this.value)">
+            <option value="ar">العربية (الأساسية)</option>
+            <option value="en">English (الإنجليزية)</option>
+            <option value="tl">Tagalog (الفلبينية)</option>
+            <option value="hi">हिन्दी (الهندية)</option>
+            <option value="ur">اردو (الباكستانية)</option>
+        </select>
+    </div>
 
     <div class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
 
     <div class="sidebar" id="sidebar">
         <div class="close-btn" onclick="toggleSidebar()"><i class="fas fa-times"></i></div>
+        <div class="sidebar-header-title"><i class="fas fa-credit-card"></i> <span id="txt_plans_title">خطط واشتراكات السائقين</span></div>
+        
         <div class="menu-item">
-            <div class="item-title"><span>السائق الخاص</span><span class="badge-free">مجاني 60 د</span></div>
-            <div style="font-size: 0.85rem; color: #cbd5e1; margin-top: 8px; line-height: 1.5;">حماية مجانية مؤقتة، تتطلب لاحقاً ترقية الباقة لتركيز غير محدود.</div>
+            <div class="item-title"><span id="txt_p1_title">السائق الخاص</span><span class="badge-plus">Yaqeth Plus</span></div>
+            <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.4;" id="txt_p1_desc">حماية يومية مجانية لأول 60 دقيقة باليوم. لتفعيل فحص غير محدود للرحلات الطويلة.</div>
+            <div class="item-price" id="txt_p1_price">12 ريال سعودي / شهرياً</div>
+            <button class="btn-subscribe" onclick="openPayment('Yaqeth Plus - السائق الخاص', '12 SAR')" id="txt_p1_btn">اشترك الآن</button>
         </div>
+        
         <div class="menu-item">
-            <div class="item-title"><span>سائق الشاحنات</span><span class="badge-pro">Yaqeth Pro</span></div>
-            <div style="font-size: 0.85rem; color: #cbd5e1; margin-top: 8px; line-height: 1.5;">ربط كامل لمراقبة مؤشرات النعاس الفورية وإرسال البيانات لمدير الأسطول إلكترونياً.</div>
+            <div class="item-title"><span id="txt_p2_title">سائق خدمات التوصيل</span><span class="badge-pro">Yaqeth Pro</span></div>
+            <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.4;" id="txt_p2_desc">مخصص لسائقي التطبيقات والمندوبين لضمان عدم التشتت والتركيز أثناء العمل المستمر.</div>
+            <div class="item-price" id="txt_p2_price">50 ريال سعودي / شهرياً</div>
+            <button class="btn-subscribe" onclick="openPayment('Yaqeth Pro - خدمات التوصيل', '50 SAR')" id="txt_p2_btn">اشترك الآن</button>
+        </div>
+
+        <div class="menu-item">
+            <div class="item-title"><span id="txt_p3_title">سائق التاكسي الأجر</span><span class="badge-pro">Yaqeth Pro</span></div>
+            <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.4;" id="txt_p3_desc">تأمين تام للركاب والسائق عبر فحص فوري ومستمر لمؤشرات النعاس واستخدام الجوال.</div>
+            <div class="item-price" id="txt_p3_price">50 ريال سعودي / شهرياً</div>
+            <button class="btn-subscribe" onclick="openPayment('Yaqeth Pro - سائق التاكسي', '50 SAR')" id="txt_p3_btn">اشترك الآن</button>
+        </div>
+
+        <div class="menu-item">
+            <div class="item-title"><span id="txt_p4_title">سائق باصات النقل</span><span class="badge-pro">Yaqeth Pro</span></div>
+            <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.4;" id="txt_p4_desc">مخصص للحافلات الكبيرة والنقل الجماعي لربط ذكي وإرسال فوري للتنبيهات لمدير العمل.</div>
+            <div class="item-price" id="txt_p4_price">50 ريال سعودي / شهرياً</div>
+            <button class="btn-subscribe" onclick="openPayment('Yaqeth Pro - باصات النقل', '50 SAR')" id="txt_p4_btn">اشترك الآن</button>
         </div>
     </div>
 
     <div class="welcome-screen">
-        <h1 class="welcome-title">Yaqeth AI | يقظ</h1>
-        <p class="welcome-text">
+        <h1 class="welcome-title" id="txt_main_title">Yaqeth AI | يقظ</h1>
+        <p class="welcome-text" id="txt_main_desc">
             المنصة الذكية الأولى للكشف الفوري عن نعاس السائقين، التشتت، استخدام الجوال، والالتفات أثناء القيادة لحماية الأرواح وضمان سلامة الطرق عبر الذكاء الاصطناعي المحلي.
         </p>
         
@@ -112,31 +159,31 @@
             
             <div class="status-panel">
                 <div class="status-row">
-                    <span>حالة السائق المباشرة:</span>
+                    <span id="lbl_status">حالة السائق المباشرة:</span>
                     <span id="driverStatus" style="color:#00a86b;">مستيقظ ومتزن</span>
                 </div>
                 <div class="status-row">
-                    <span>نقاط القيادة الآمنة المتراكمة:</span>
+                    <span id="lbl_points">نقاط القيادة الآمنة المتراكمة:</span>
                     <span id="drivingPoints" style="color:#d97706;">100 نقطة ⭐</span>
                 </div>
                 <div class="status-row">
-                    <span>مدة الفحص الفعلي المستمر:</span>
+                    <span id="lbl_timer">مدة الفحص الفعلي المستمر:</span>
                     <span id="alertTimer">0 ثانية</span>
                 </div>
             </div>
             
-            <div class="privacy-note">
-                <i class="fas fa-shield-halved"></i>
-                <span>ميزة أمان سيبراني: المعالجة تتم محلياً بالكامل على جهازك لحماية خصوصية بياناتك الصورية.</span>
+            <div class="privacy-note" style="font-size: 0.8rem; color: #9ca3af; margin-top: 10px; display: flex; align-items: center; gap: 5px;">
+                <i class="fas fa-shield-halved" style="color: #00a86b;"></i>
+                <span id="txt_privacy">ميزة أمان سيبراني: المعالجة تتم محلياً بالكامل على جهازك لحماية خصوصية بياناتك الصورية.</span>
             </div>
         </div>
     </div>
 
-    <!-- بوابة الأمان - تسجيل الدخول -->
     <div class="login-modal" id="loginModal">
         <div class="login-box">
+            <i class="fas fa-times modal-close-icon" onclick="closeModal('loginModal')"></i>
             <h3>بوابة الأمان | Yaqeth AI</h3>
-            <p id="loginInstructions">لحفظ حسابك وتأمين اشتراكاتك، يرجى إدخل بريدك الإلكتروني لاستلام رمز تحقق مباشر (OTP).</p>
+            <p id="loginInstructions">لحفظ حسابك وتأمين اشتراكاتك، يرجى إدخال بريدك الإلكتروني لاستلام رمز تحقق مباشر (OTP).</p>
             
             <div id="emailSection">
                 <input type="email" class="login-input" id="loginEmail" placeholder="name@example.com" required>
@@ -150,99 +197,225 @@
         </div>
     </div>
 
+    <div class="payment-modal" id="paymentModal">
+        <div class="payment-box">
+            <i class="fas fa-times modal-close-icon" onclick="closeModal('paymentModal')"></i>
+            <h3 id="payPlanName">تفعيل الاشتراك التجاري</h3>
+            <p id="payPlanCost">أنت الآن تقوم بالترقية السريعة لباقات يقظ الذكية الآمنة.</p>
+            
+            <input type="text" class="payment-input" placeholder="اسم صاحب البطاقة" required>
+            <input type="text" class="payment-input" placeholder="**** **** **** ****" maxlength="19" required>
+            <div class="payment-row">
+                <input type="text" class="payment-input" placeholder="MM / YY" maxlength="5" required>
+                <input type="password" class="payment-input" placeholder="CVV" maxlength="3" required>
+            </div>
+            
+            <button type="button" class="btn-submit-payment" onclick="processPayment()" id="txt_pay_confirm_btn">تأكيد الدفع والترقية الفورية</button>
+        </div>
+    </div>
+
     <audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" preload="auto" loop></audio>
 
     <script>
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
-        const audioAlarm = document.getElementById('alertSound');
-        
-        let generatedOTP = ""; 
-        let isLoggedIn = false; // متغير ذكي لحفظ حالة تسجيل الدخول ومنع تكرار النافذة
+        // داتابيز الترجمات المتكاملة للخمس لغات المطلوبة
+        const translations = {
+            ar: {
+                main_title: "Yaqeth AI | يقظ",
+                main_desc: "المنصة الذكية الأولى للكشف الفوري عن نعاس السائقين، التشتت، استخدام الجوال، والالتفات أثناء القيادة لحماية الأرواح وضمان سلامة الطرق عبر الذكاء الاصطناعي المحلي.",
+                btn_start: "بَدْء التفعيل",
+                btn_demo: "تجربة الذكاء الاصطناعي الحي 👁️",
+                plans_title: "خطط واشتراكات السائقين",
+                p1_title: "السائق الخاص", p1_desc: "حماية يومية مجانية لأول 60 دقيقة باليوم. لتفعيل فحص غير محدود للرحلات الطويلة.", p1_price: "12 ريال سعودي / شهرياً", p1_btn: "اشترك الآن",
+                p2_title: "سائق خدمات التوصيل", p2_desc: "مخصص لسائقي التطبيقات والمندوبين لضمان عدم التشتت والتركيز أثناء العمل المستمر.", p2_price: "50 ريال سعودي / شهرياً", p2_btn: "اشترك الآن",
+                p3_title: "سائق التاكسي الأجر", p3_desc: "تأمين تام للركاب والسائق عبر فحص فوري ومستمر لمؤشرات النعاس واستخدام الجوال.", p3_price: "50 ريال سعودي / شهرياً", p3_btn: "اشترك الآن",
+                p4_title: "سائق باصات النقل", p4_desc: "مخصص للحافلات الكبيرة والنقل الجماعي لربط ذكي وإرسال فوري للتنبيهات لمدير العمل.", p4_price: "50 ريال سعودي / شهرياً", p4_btn: "اشترك الآن",
+                lbl_status: "حالة السائق المباشرة:", lbl_points: "نقاط القيادة الآمنة المتراكمة:", lbl_timer: "مدة الفحص الفعلي المستمر:",
+                txt_privacy: "ميزة أمان سيبراني: المعالجة تتم محلياً بالكامل على جهازك لحماية خصوصية بياناتك الصورية.",
+                status_ok: "مستيقظ ومتزن", status_danger: "🚨 خطر: تم رصد إغلاق كامل ومستمر للعينين!", status_ai_ok: "✅ جاري الفحص المحلي...", status_ai_danger: "⚠️ حالة طارئة: نعاس مكتشف!", pay_btn_txt: "تأكيد الدفع والترقية الفورية"
+            },
+            en: {
+                main_title: "Yaqeth AI | Alert",
+                main_desc: "The premier AI platform for real-time detection of driver drowsiness, distraction, mobile usage, and steering off to save lives and ensure road safety via edge processing.",
+                btn_start: "Start Activation",
+                btn_demo: "Live AI Demo 👁️",
+                plans_title: "Driver Subscription Plans",
+                p1_title: "Private Driver", p1_desc: "Free protection for the first 60 mins daily. Activate for unlimited scanning on long trips.", p1_price: "12 SAR / Monthly", p1_btn: "Subscribe Now",
+                p2_title: "Delivery Driver", p2_desc: "Tailored for gig economy and delivery apps to ensure ultimate focus during non-stop work shifts.", p2_price: "50 SAR / Monthly", p2_btn: "Subscribe Now",
+                p3_title: "Taxi Driver", p3_desc: "Full safety coverage for both passengers and taxi drivers with real-time analytics and alerts.", p3_price: "50 SAR / Monthly", p3_btn: "Subscribe Now",
+                p4_title: "Bus & Transit Driver", p4_desc: "Designed for large buses and public fleets to automatically sync alert notifications with managers.", p4_price: "50 SAR / Monthly", p4_btn: "Subscribe Now",
+                lbl_status: "Live Driver Status:", lbl_points: "Safe Driving Score:", lbl_timer: "Continuous Scan Time:",
+                txt_privacy: "Cybersecurity Feature: Eye tracking processing is completely done offline on edge to shield your data privacy.",
+                status_ok: "Awake and Focused", status_danger: "🚨 Danger: Continuous Eyelid Closure Detected!", status_ai_ok: "✅ Local Inspection Active...", status_ai_danger: "⚠️ Emergency: Drowsiness Detected!", pay_btn_txt: "Confirm Payment & Upgrade Now"
+            },
+            tl: { // الفلبينية
+                main_title: "Yaqeth AI | Gising",
+                main_desc: "Ang unang AI platform para sa real-time na pagtukoy ng antok, pagkabahala, paggamit ng cellphone, upang magligtas ng mga buhay sa kalsada.",
+                btn_start: "Simulan ang Activation",
+                btn_demo: "Live AI Demo 👁️",
+                plans_title: "Mga Plano ng Driver",
+                p1_title: "Pribadong Driver", p1_desc: "Libreng proteksyon para sa unang 60 minuto araw-araw. Mag-subscribe para sa walang limitasyong biyahe.", p1_price: "12 SAR / Buwan-buwan", p1_btn: "Mag-subscribe Na",
+                p2_title: "Driver ng Delivery", p2_desc: "Ginawa para sa mga delivery app upang matiyak ang buong pokus sa patuloy na trabaho.", p2_price: "50 SAR / Buwan-buwan", p2_btn: "Mag-subscribe Na",
+                p3_title: "Driver ng Taxi", p3_desc: "Buong seguridad para sa mga pasahero at driver sa pamamagitan ng patuloy na pagsusuri.", p3_price: "50 SAR / Buwan-buwan", p3_btn: "Mag-subscribe Na",
+                p4_title: "Driver ng Bus", p4_desc: "Para sa malalaking bus upang magpadala ng mabilis na mga alerto sa manager ng fleet.", p4_price: "50 SAR / Buwan-buwan", p4_btn: "Mag-subscribe Na",
+                lbl_status: "Katayuan ng Driver:", lbl_points: "Puntos ng Ligtas na Pagmamaneho:", lbl_timer: "Oras ng Pagsusuri:",
+                txt_privacy: "Cybersecurity: Ang pagproseso ay lokal sa iyong aparato upang protektahan ang privacy ng iyong mukha.",
+                status_ok: "Gising at Ligtas", status_danger: "🚨 Panganib: Nakikitang Nakapikit ang mga Mata!", status_ai_ok: "✅ Pagsusuri Aktibo...", status_ai_danger: "⚠️ Emergency: Antok na Driver!", pay_btn_txt: "Kumpirmahin ang Pagbabayad"
+            },
+            hi: { // الهندية
+                main_title: "Yaqeth AI | सजग",
+                main_desc: "चालकों की नींद, ध्यान भटकने और मोबाइल उपयोग का तुरंत पता लगाने वाला पहला एआई प्लेटफॉर्म ताकि सड़क दुर्घटनाओं को रोका जा सके।",
+                btn_start: "सक्रिय करें",
+                btn_demo: "लाइव एआई डेमो 👁️",
+                plans_title: "ड्राइवर सदस्यता योजनाएं",
+                p1_title: "प्राइवेट ड्राइवर", p1_desc: "प्रतिदिन पहले 60 मिनट के लिए मुफ्त सुरक्षा। लंबी यात्राओं के लिए असीमित सक्रिय करें।", p1_price: "12 SAR / मासिक", p1_btn: "अभी खरीदें",
+                p2_title: "डिलीवरी ड्राइवर", p2_desc: "लगातार काम के दौरान ध्यान केंद्रित रखने के लिए डिलीवरी ड्राइवरों के लिए विशेष रूप से निर्मित।", p2_price: "50 SAR / मासिक", p2_btn: "अभी खरीदें",
+                p3_title: "टैक्सी ड्राइवर", p3_desc: "यात्रियों और टैक्सी चालकों दोनों के लिए वास्तविक समय में पूर्ण सुरक्षा कवरेज प्रदान करता है।", p3_price: "50 SAR / मासिक", p3_btn: "अभी खरीदें",
+                p4_title: "बस और परिवहन चालक", p4_desc: "बड़े वाहनों के लिए डिज़ाइन किया गया ताकि अलर्ट सीधे आपके फ्लीट मैनेजर को भेजा जा सके।", p4_price: "50 SAR / मासिक", p4_btn: "अभी खरीदें",
+                lbl_status: "चालक की स्थिति:", lbl_points: "सुरक्षित ड्राइविंग स्कोर:", lbl_timer: "निरंतर स्कैन समय:",
+                txt_privacy: "साइबर सुरक्षा: आपकी गोपनीयता की सुरक्षा के लिए वीडियो प्रोसेसिंग पूरी तरह से आपके डिवाइस पर स्थानीय रूप से की जाती है।",
+                status_ok: "जाग्रत और संतुलित", status_danger: "🚨 खतरा: आँखों का लगातार बंद होना पाया गया!", status_ai_ok: "✅ स्थानीय स्कैनिंग सक्रिय...", status_ai_danger: "⚠️ आपातकाल: नींद का पता चला!", pay_btn_txt: "भुगतान की पुष्टि करें"
+            },
+            ur: { // الباكستانية/الأوردو
+                main_title: "Yaqeth AI | بیدار",
+                main_desc: "ڈرائیوروں کی نیند، توجہ ہٹنے اور موبائل فون کے استعمال کا فوری پتہ لگانے والا پہلا اسمارٹ اے آئی پلیٹ فارم تاکہ قیمتی جانوں کو بچایا جا سکے۔",
+                btn_start: "ایکٹیویشن شروع کریں",
+                btn_demo: "لائیو اے آئی ڈیمو 👁️",
+                plans_title: "ڈرائیور سبسکرپشن پلانز",
+                p1_title: "پرائیویٹ ڈرائیور", p1_desc: "روزانہ پہلے 60 منٹ کے لیے مفت تحفظ۔ لمبی ریس کے لیے لا محدود اسکیننگ فعال کریں۔", p1_price: "12 SAR / ماہانہ", p1_btn: "ابھی سبسکرائب کریں",
+                p2_title: "ڈلیوری ڈرائیور", p2_desc: "مسلسل کام کے شفٹوں کے دوران مکمل توجہ اور حفاظت کو یقینی بنانے کے لیے تیار کردہ۔", p2_price: "50 SAR / ماہانہ", p2_btn: "ابھی سبسکرائب کریں",
+                p3_title: "ٹیکسی ڈرائیور", p3_desc: "مسافروں اور ٹیکسی ڈرائیوروں دونوں کی حفاظت کے لیے لائیو مانیٹرنگ فراہم کرتا ہے۔", p3_price: "50 SAR / ماہانہ", p3_btn: "ابھی سبسکرائب کریں",
+                p4_title: "بس ڈرائیور", p4_desc: "بڑی بسوں کے لیے تاکہ نیند کے الرٹ فوری طور پر فلیٹ مینیجر کو منتقل ہو سکیں۔", p4_price: "50 SAR / ماہانہ", p4_btn: "ابھی سبسکرائب کریں",
+                lbl_status: "ڈرائیور کی حالت:", lbl_points: "سیف ڈرائیونگ پوائنٹس:", lbl_timer: "مسلسل اسکین کا وقت:",
+                txt_privacy: "سائبر سیکیورٹی: آپ کے چہرے کے ڈیٹا کی رازداری کے لیے پروسیسنگ مکمل طور پر مقامی طور پر کی جاتی ہے۔",
+                status_ok: "بیدار اور متوازن", status_danger: "🚨 خطرہ: آنکھیں مسلسل بند پائی گئیں!", status_ai_ok: "✅ مقامی اسکیننگ جاری ہے...", status_ai_danger: "⚠️ ایمرجنسی: نیند کی حالت!", pay_btn_txt: "ادائیگی کی تصدیق کریں"
+            }
+        };
 
-        // ==========================================
-        //  إعدادات الـ EmailJS لـ GitHub & Vercel
-        // ==========================================
-        // افتح حساب مجاني في emailjs.com وضع مفاتيحك هنا لتصلك الرسائل للبريد فوراً
+        let currentLang = "ar";
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang];
+            
+            // تغيير اتجاه الموقع حسب اللغة
+            if (lang === "ar" || lang === "ur") {
+                document.documentElement.dir = "rtl";
+                document.documentElement.lang = lang;
+                document.body.classList.remove("en-lang");
+            } else {
+                document.documentElement.dir = "ltr";
+                document.documentElement.lang = lang;
+                document.body.classList.add("en-lang");
+            }
+
+            // تطبيق الترجمات على كافة العناصر
+            document.getElementById("txt_main_title").innerText = t.main_title;
+            document.getElementById("txt_main_desc").innerText = t.main_desc;
+            document.getElementById("startBtn").innerText = t.btn_start;
+            document.getElementById("demoBtn").innerText = t.btn_demo;
+            
+            document.getElementById("txt_plans_title").innerText = t.plans_title;
+            document.getElementById("txt_p1_title").innerText = t.p1_title;
+            document.getElementById("txt_p1_desc").innerText = t.p1_desc;
+            document.getElementById("txt_p1_price").innerText = t.p1_price;
+            document.getElementById("txt_p1_btn").innerText = t.p1_btn;
+
+            document.getElementById("txt_p2_title").innerText = t.p2_title;
+            document.getElementById("txt_p2_desc").innerText = t.p2_desc;
+            document.getElementById("txt_p2_price").innerText = t.p2_price;
+            document.getElementById("txt_p2_btn").innerText = t.p2_btn;
+
+            document.getElementById("txt_p3_title").innerText = t.p3_title;
+            document.getElementById("txt_p3_desc").innerText = t.p3_desc;
+            document.getElementById("txt_p3_price").innerText = t.p3_price;
+            document.getElementById("txt_p3_btn").innerText = t.p3_btn;
+
+            document.getElementById("txt_p4_title").innerText = t.p4_title;
+            document.getElementById("txt_p4_desc").innerText = t.p4_desc;
+            document.getElementById("txt_p4_price").innerText = t.p4_price;
+            document.getElementById("txt_p4_btn").innerText = t.p4_btn;
+
+            document.getElementById("lbl_status").innerText = t.lbl_status;
+            document.getElementById("lbl_points").innerText = t.lbl_points;
+            document.getElementById("lbl_timer").innerText = t.lbl_timer;
+            document.getElementById("txt_privacy").innerText = t.txt_privacy;
+            document.getElementById("txt_pay_confirm_btn").innerText = t.pay_btn_txt;
+        }
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        // فتح لوحة الدفع
+        function openPayment(planName, cost) {
+            toggleSidebar(); // إغلاق القائمة الجانبية أولاً
+            document.getElementById("payPlanName").innerText = planName;
+            document.getElementById("payPlanCost").innerText = currentLang === "ar" ? `قيمة الاشتراك: ${cost} شهرياً` : `Subscription Cost: ${cost} / Month`;
+            document.getElementById("paymentModal").style.display = "flex";
+        }
+
+        function processPayment() {
+            alert(currentLang === "ar" ? "تمت عملية الدفع ومصادقة الباقة الرقمية بنجاح!" : "Payment processed and digital license activated successfully!");
+            closeModal("paymentModal");
+        }
+
+        let generatedOTP = ""; 
+        let isLoggedIn = false; 
+
+        // تفعيل أزرار تسجيل الدخول وإرسال الـ OTP بـ EmailJS
         const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY"; 
         const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID";
         const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
-
         emailjs.init(EMAILJS_PUBLIC_KEY);
 
-        // 1. توليد وإرسال الرمز
         document.getElementById('sendOtpBtn').addEventListener('click', function() {
             let email = document.getElementById('loginEmail').value.trim();
-            
             if(email === "" || !email.includes("@")) {
-                alert("يرجى إدخال بريد إلكتروني صحيح!");
+                alert("Email Error!");
                 return;
             }
-
-            document.getElementById('sendOtpBtn').innerText = "... جاري إرسال الرمز الآمن";
-            
-            // توليد رمز عشوائي
+            document.getElementById('sendOtpBtn').innerText = "... Loading";
             generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
 
-            // إرسال الرمز عبر سرفيس EmailJS
             emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
                 to_email: email,
                 otp_code: generatedOTP
             }).then(function() {
-                // عند نجاح الإرسال الحقيقي للبريد: تفتح واجهة إدخال الكود مباشرة دون إظهار الرمز على الشاشة!
                 document.getElementById('emailSection').style.display = 'none';
                 document.getElementById('otpSection').style.display = 'block';
-                document.getElementById('loginInstructions').innerHTML = `تم إرسال رمز تحقق سري بنجاح إلى بريدك: <br><strong style="color:#00a86b;">${email}</strong>.`;
+                document.getElementById('loginInstructions').innerHTML = `OTP Sent to: <br><strong>${email}</strong>.`;
             }, function(error) {
-                // إذا لم يتم ربط المفاتيح بعد، سيعمل وضع المطور لتسهيل التجربة
                 document.getElementById('emailSection').style.display = 'none';
                 document.getElementById('otpSection').style.display = 'block';
-                document.getElementById('loginInstructions').innerHTML = `[وضع التطوير] لم يتم ربط الحساب بـ EmailJS بعد. <br> الرمز السري هو: <strong style="color:#ea580c;">${generatedOTP}</strong>`;
+                document.getElementById('loginInstructions').innerHTML = `[Dev Mode Code]: <strong style="color:#ea580c;">${generatedOTP}</strong>`;
             });
         });
 
-        // 2. التحقق من الرمز
         document.getElementById('verifyOtpBtn').addEventListener('click', function() {
             let token = document.getElementById('otpCode').value.trim();
-            
             if(token === generatedOTP) {
-                alert("تم التحقق بنجاح! مرحباً بك في Yaqeth AI");
-                isLoggedIn = true; // تثبيت حالة تسجيل الدخول بنجاح!
-                document.getElementById('loginModal').style.display = 'none'; 
-                
-                // تشغيل الكاميرا والمحاكاة فوراً بعد نجاح تسجيل الدخول لأول مرة
+                alert("Success!");
+                isLoggedIn = true; 
+                closeModal('loginModal');
                 openCameraAndStart();
             } else {
-                alert("الرمز غير صحيح، يرجى إعادة المحاولة!");
+                alert("Wrong OTP!");
             }
         });
 
-        // زر بدء التفعيل الذكي (يتحقق من الدخول أولاً)
         document.getElementById('startBtn').addEventListener('click', function() {
-            if (isLoggedIn) {
-                // إذا كان مسجل دخول مسبقاً، تفتح الكاميرا مباشرة ولا تظهر نافذة البريد مجدداً!
-                openCameraAndStart();
-            } else {
-                // إذا لم يسجل دخول، يفتح له النافذة
+            if (isLoggedIn) { openCameraAndStart(); } 
+            else {
                 document.getElementById('emailSection').style.display = 'block';
                 document.getElementById('otpSection').style.display = 'none';
                 document.getElementById('loginModal').style.display = 'flex';
             }
         });
 
-        // زر التجربة الحية
-        document.getElementById('demoBtn').addEventListener('click', function() {
-            openCameraAndStart();
-        });
+        document.getElementById('demoBtn').addEventListener('click', function() { openCameraAndStart(); });
 
-        // ==========================================
-        //  دالة تشغيل الكاميرا والمحاكاة الموحدة
-        // ==========================================
         function openCameraAndStart() {
             document.getElementById('cameraContainer').style.display = 'flex';
-            
-            // التمرير التلقائي لأسفل لرؤية الكاميرا بوضوح على الهواتف
             document.getElementById('cameraContainer').scrollIntoView({ behavior: 'smooth' });
-
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 navigator.mediaDevices.getUserMedia({ video: true })
                 .then(function(stream) {
@@ -250,18 +423,11 @@
                     video.srcObject = stream;
                     video.play();
                     startAdvancedSimulation();
-                })
-                .catch(function(error) {
-                    alert("ميزة الكشف بحاجة لصلاحية الكاميرا للعمل محلياً.");
-                });
-            } else {
-                alert("المتصفح لا يدعم بث الكاميرات المباشر.");
+                }).catch(function(e) { alert("Camera Access Required."); });
             }
         }
 
-        // متغير لمنع تكرار تشغيل العداد أكثر من مرة
         let simulationStarted = false;
-
         function startAdvancedSimulation() {
             if (simulationStarted) return;
             simulationStarted = true;
@@ -276,36 +442,35 @@
             let currentPoints = 100;
 
             setInterval(() => {
+                const t = translations[currentLang];
                 seconds++;
-                timerEl.innerText = seconds + " ثانية";
+                timerEl.innerText = seconds + (currentLang === "ar" ? " ثانية" : " sec");
                 
                 if (seconds % 10 === 0) {
-                    statusEl.innerText = "🚨 خطر: تم رصد إغلاق كامل ومستمر للعينين!";
+                    statusEl.innerText = t.status_danger;
                     statusEl.className = "status-danger";
-                    aiTagEl.innerText = "⚠️ حالة طارئة: نعاس مكتشف!";
+                    aiTagEl.innerText = t.status_ai_danger;
                     aiTagEl.style.background = "#ef4444";
                     aiBoxEl.style.borderColor = "#ef4444";
                     aiBoxEl.style.boxShadow = "0 0 25px #ef4444";
                     
                     currentPoints -= 15;
                     if(currentPoints < 0) currentPoints = 0;
-                    pointsEl.innerText = currentPoints + " نقطة ⚠️";
+                    pointsEl.innerText = currentPoints + " pts";
                     pointsEl.style.color = "#ef4444";
-                    
-                    audioAlarm.play().catch(e => console.log("Audio delayed"));
+                    audioAlarm.play().catch(e => {});
                 } 
                 else if (seconds % 10 === 4) {
-                    statusEl.innerText = "مستيقظ ومتزن";
+                    statusEl.innerText = t.status_ok;
                     statusEl.className = "";
                     statusEl.style.color = "#00a86b";
-                    aiTagEl.innerText = "✅ جاري الفحص المحلي...";
+                    aiTagEl.innerText = t.status_ai_ok;
                     aiTagEl.style.background = "#00a86b";
                     aiBoxEl.style.borderColor = "#00a86b";
                     aiBoxEl.style.boxShadow = "0 0 15px #00a86b";
                     
                     pointsEl.style.color = "#d97706";
-                    pointsEl.innerText = currentPoints + " نقطة ⭐";
-                    
+                    pointsEl.innerText = currentPoints + " pts ⭐";
                     audioAlarm.pause();
                     audioAlarm.currentTime = 0;
                 }
