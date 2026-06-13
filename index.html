@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Yaqeth AI | يقظ</title>
     
+    <!-- استدعاء الخطوط، الأيقونات، ومكتبة الإرسال -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
@@ -92,6 +93,7 @@
 </head>
 <body>
 
+    <!-- خانة اللغات المتطورة المضافة علوياً -->
     <div class="top-bar">
         <i class="fas fa-globe" style="color: #00a86b;"></i>
         <select class="lang-select" id="langSelect" onchange="changeLanguage(this.value)">
@@ -105,10 +107,12 @@
 
     <div class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
 
+    <!-- القائمة الجانبية مجهزة بكافة خطط واشتراكات السائقين المطلوبة -->
     <div class="sidebar" id="sidebar">
         <div class="close-btn" onclick="toggleSidebar()"><i class="fas fa-times"></i></div>
         <div class="sidebar-header-title"><i class="fas fa-credit-card"></i> <span id="txt_plans_title">خطط واشتراكات السائقين</span></div>
         
+        <!-- باقة السائق الخاص التابع لـ Yaqeth Plus -->
         <div class="menu-item">
             <div class="item-title"><span id="txt_p1_title">السائق الخاص</span><span class="badge-plus">Yaqeth Plus</span></div>
             <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.4;" id="txt_p1_desc">حماية يومية مجانية لأول 60 دقيقة باليوم. لتفعيل فحص غير محدود للرحلات الطويلة.</div>
@@ -116,6 +120,7 @@
             <button class="btn-subscribe" onclick="openPayment('Yaqeth Plus - السائق الخاص', '12 SAR')" id="txt_p1_btn">اشترك الآن</button>
         </div>
         
+        <!-- باقات الـ Yaqeth Pro الثلاثة المتبقية -->
         <div class="menu-item">
             <div class="item-title"><span id="txt_p2_title">سائق خدمات التوصيل</span><span class="badge-pro">Yaqeth Pro</span></div>
             <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.4;" id="txt_p2_desc">مخصص لسائقي التطبيقات والمندوبين لضمان عدم التشتت والتركيز أثناء العمل المستمر.</div>
@@ -179,11 +184,12 @@
         </div>
     </div>
 
+    <!-- نافذة تسجيل الدخول الآمن برمز التحقق (OTP) -->
     <div class="login-modal" id="loginModal">
         <div class="login-box">
             <i class="fas fa-times modal-close-icon" onclick="closeModal('loginModal')"></i>
             <h3>بوابة الأمان | Yaqeth AI</h3>
-            <p id="loginInstructions">لحفظ حسابك وتأمين اشتراكاتك، يرجى إدخال بريدك الإلكتروني لاستلام رمز تحقق مباشر (OTP).</p>
+            <p id="loginInstructions">لحفظ حسابك وتأمين اشتراكاتك، يرجى إدخال بريدك الإلكتروني لاستلاف رمز تحقق مباشر (OTP).</p>
             
             <div id="emailSection">
                 <input type="email" class="login-input" id="loginEmail" placeholder="name@example.com" required>
@@ -197,6 +203,7 @@
         </div>
     </div>
 
+    <!-- نافذة الدفع المتطورة عند الضغط على أي باقة اشتراك -->
     <div class="payment-modal" id="paymentModal">
         <div class="payment-box">
             <i class="fas fa-times modal-close-icon" onclick="closeModal('paymentModal')"></i>
@@ -214,9 +221,15 @@
         </div>
     </div>
 
-    <audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" preload="auto" loop></audio>
+    <!-- صوت إنذار شرطة حقيقي قوي مع أبواق متعددة ومكرر تلقائياً -->
+    <audio id="alertSound" src="https://www.soundjay.com/buttons/sounds/button-4.mp3" preload="auto" loop></audio>
 
     <script>
+        // إعداد عنصر الصوت بشكل محلي ومباشر بصوت إنذار مكرر وبوق قوي جداً
+        const audioAlarm = document.getElementById('alertSound');
+        // استبدال الرابط بملف صوت إنذار رسمي وقوي (Police Siren / Emergency Horn)
+        audioAlarm.src = "https://assets.mixkit.co/active_storage/sfx/947/947-84.wav"; 
+
         // داتابيز الترجمات المتكاملة للخمس لغات المطلوبة
         const translations = {
             ar: {
@@ -247,7 +260,7 @@
                 txt_privacy: "Cybersecurity Feature: Eye tracking processing is completely done offline on edge to shield your data privacy.",
                 status_ok: "Awake and Focused", status_danger: "🚨 Danger: Continuous Eyelid Closure Detected!", status_ai_ok: "✅ Local Inspection Active...", status_ai_danger: "⚠️ Emergency: Drowsiness Detected!", pay_btn_txt: "Confirm Payment & Upgrade Now"
             },
-            tl: { // الفلبينية
+            tl: {
                 main_title: "Yaqeth AI | Gising",
                 main_desc: "Ang unang AI platform para sa real-time na pagtukoy ng antok, pagkabahala, paggamit ng cellphone, upang magligtas ng mga buhay sa kalsada.",
                 btn_start: "Simulan ang Activation",
@@ -261,7 +274,7 @@
                 txt_privacy: "Cybersecurity: Ang pagproseso ay lokal sa iyong aparato upang protektahan ang privacy ng iyong mukha.",
                 status_ok: "Gising at Ligtas", status_danger: "🚨 Panganib: Nakikitang Nakapikit ang mga Mata!", status_ai_ok: "✅ Pagsusuri Aktibo...", status_ai_danger: "⚠️ Emergency: Antok na Driver!", pay_btn_txt: "Kumpirmahin ang Pagbabayad"
             },
-            hi: { // الهندية
+            hi: {
                 main_title: "Yaqeth AI | सजग",
                 main_desc: "चालकों की नींद, ध्यान भटकने और मोबाइल उपयोग का तुरंत पता लगाने वाला पहला एआई प्लेटफॉर्म ताकि सड़क दुर्घटनाओं को रोका जा सके।",
                 btn_start: "सक्रिय करें",
@@ -272,10 +285,10 @@
                 p3_title: "टैक्सी ड्राइवर", p3_desc: "यात्रियों और टैक्सी चालकों दोनों के लिए वास्तविक समय में पूर्ण सुरक्षा कवरेज प्रदान करता है।", p3_price: "50 SAR / मासिक", p3_btn: "अभी खरीदें",
                 p4_title: "बस और परिवहन चालक", p4_desc: "बड़े वाहनों के लिए डिज़ाइन किया गया ताकि अलर्ट सीधे आपके फ्लीट मैनेजर को भेजा जा सके।", p4_price: "50 SAR / मासिक", p4_btn: "अभी खरीदें",
                 lbl_status: "चालक की स्थिति:", lbl_points: "सुरक्षित ड्राइविंग स्कोर:", lbl_timer: "निरंतर स्कैन समय:",
-                txt_privacy: "साइबर सुरक्षा: आपकी गोपनीयता की सुरक्षा के लिए वीडियो प्रोसेसिंग पूरी तरह से आपके डिवाइस पर स्थानीय रूप से की जाती है।",
+                txt_privacy: "साइبر सुरक्षा: आपकी गोपनीयता की सुरक्षा के लिए वीडियो प्रोसेसिंग पूरी तरह से आपके डिवाइस पर स्थानीय रूप से की जाती है।",
                 status_ok: "जाग्रत और संतुलित", status_danger: "🚨 खतरा: आँखों का लगातार बंद होना पाया गया!", status_ai_ok: "✅ स्थानीय स्कैनिंग सक्रिय...", status_ai_danger: "⚠️ आपातकाल: नींद का पता चला!", pay_btn_txt: "भुगतान की पुष्टि करें"
             },
-            ur: { // الباكستانية/الأوردو
+            ur: {
                 main_title: "Yaqeth AI | بیدار",
                 main_desc: "ڈرائیوروں کی نیند، توجہ ہٹنے اور موبائل فون کے استعمال کا فوری پتہ لگانے والا پہلا اسمارٹ اے آئی پلیٹ فارم تاکہ قیمتی جانوں کو بچایا جا سکے۔",
                 btn_start: "ایکٹیویشن شروع کریں",
@@ -297,7 +310,6 @@
             currentLang = lang;
             const t = translations[lang];
             
-            // تغيير اتجاه الموقع حسب اللغة
             if (lang === "ar" || lang === "ur") {
                 document.documentElement.dir = "rtl";
                 document.documentElement.lang = lang;
@@ -308,7 +320,6 @@
                 document.body.classList.add("en-lang");
             }
 
-            // تطبيق الترجمات على كافة العناصر
             document.getElementById("txt_main_title").innerText = t.main_title;
             document.getElementById("txt_main_desc").innerText = t.main_desc;
             document.getElementById("startBtn").innerText = t.btn_start;
@@ -345,9 +356,8 @@
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         
-        // فتح لوحة الدفع
         function openPayment(planName, cost) {
-            toggleSidebar(); // إغلاق القائمة الجانبية أولاً
+            toggleSidebar();
             document.getElementById("payPlanName").innerText = planName;
             document.getElementById("payPlanCost").innerText = currentLang === "ar" ? `قيمة الاشتراك: ${cost} شهرياً` : `Subscription Cost: ${cost} / Month`;
             document.getElementById("paymentModal").style.display = "flex";
@@ -361,7 +371,6 @@
         let generatedOTP = ""; 
         let isLoggedIn = false; 
 
-        // تفعيل أزرار تسجيل الدخول وإرسال الـ OTP بـ EmailJS
         const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY"; 
         const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID";
         const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
@@ -402,7 +411,9 @@
             }
         });
 
+        // تشغيل وتهيئة عنصر الصوت فور التفاعل البشري بالضغط على الأزرار لتجاوز حظر المتصفح
         document.getElementById('startBtn').addEventListener('click', function() {
+            unlockAudioEngine();
             if (isLoggedIn) { openCameraAndStart(); } 
             else {
                 document.getElementById('emailSection').style.display = 'block';
@@ -411,7 +422,19 @@
             }
         });
 
-        document.getElementById('demoBtn').addEventListener('click', function() { openCameraAndStart(); });
+        document.getElementById('demoBtn').addEventListener('click', function() { 
+            unlockAudioEngine();
+            openCameraAndStart(); 
+        });
+
+        // دالة مخصصة لفك قفل محرك الصوت وجعله جاهزاً بنسبة 100% وبأعلى صوت
+        function unlockAudioEngine() {
+            audioAlarm.play().then(() => {
+                audioAlarm.pause(); // نقوم بتشغيله وإيقافه فوراً لتهيئة الأمان في المتصفح
+                audioAlarm.volume = 1.0; // فرض درجة مستوى الصوت إلى 100% القصوى
+                audioAlarm.currentTime = 0;
+            }).catch(e => { console.log("Audio ready setup waiting..."); });
+        }
 
         function openCameraAndStart() {
             document.getElementById('cameraContainer').style.display = 'flex';
@@ -446,6 +469,7 @@
                 seconds++;
                 timerEl.innerText = seconds + (currentLang === "ar" ? " ثانية" : " sec");
                 
+                // في الثانية العاشرة ومضاعفاتها: ينطلق الإنذار المدوي وبأعلى صوت 100%
                 if (seconds % 10 === 0) {
                     statusEl.innerText = t.status_danger;
                     statusEl.className = "status-danger";
@@ -458,8 +482,12 @@
                     if(currentPoints < 0) currentPoints = 0;
                     pointsEl.innerText = currentPoints + " pts";
                     pointsEl.style.color = "#ef4444";
-                    audioAlarm.play().catch(e => {});
+                    
+                    // تشغيل إنذار الشرطة والبوق بأعلى شدة
+                    audioAlarm.volume = 1.0; 
+                    audioAlarm.play().catch(e => { console.log("Playback error, interactions needed."); });
                 } 
+                // العودة للحالة الطبيعية وإيقاف البوق
                 else if (seconds % 10 === 4) {
                     statusEl.innerText = t.status_ok;
                     statusEl.className = "";
@@ -471,6 +499,8 @@
                     
                     pointsEl.style.color = "#d97706";
                     pointsEl.innerText = currentPoints + " pts ⭐";
+                    
+                    audioAlarm.disabled = true;
                     audioAlarm.pause();
                     audioAlarm.currentTime = 0;
                 }
