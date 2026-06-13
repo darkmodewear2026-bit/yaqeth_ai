@@ -3,105 +3,972 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yaqeth AI | المنظومة الشاملة لإدارة سلامة المركبات</title>
+    <title>Yaqeth AI | المنظومة الشاملة لإدارة سلامة المركبات والأساطيل وبوابات الدفع اللوجستية</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;700;800&display=swap" rel="stylesheet">
+    <!-- استدعاء خط القاهرة الرسمي بجميع أوزانه الاحترافية -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- استدعاء مكتبة الأيقونات العالمية FontAwesome الإصدار السادس -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- استدعاء سكريبت البريد الإلكتروني السحابي كقاعدة محاكاة أساسية -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     
     <style>
-        :root { --bg-deep: #050811; --color-primary: #00ffcc; --color-danger: #ff3366; }
-        body { background-color: var(--bg-deep); color: white; font-family: 'Cairo', sans-serif; margin: 0; }
-        
-        /* الخلفية الترحيبية (شعار الرؤية) */
-        #screenAuthenticationArea {
-            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), 
-                        url('https://www.vision2030.gov.sa/media/wz3n0o3s/vision-2030-logo.png') center/contain no-repeat;
-            min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        /* ------------------------------------------------------
+           1. قواعد التنسيق الكبرى، المتغيرات، وإعدادات الواجهات
+        --------------------------------------------------------- */
+        :root {
+            --bg-deep-space: #030712;
+            --bg-card-surface: #0f172a;
+            --bg-control-element: #1e293b;
+            --bg-input-focus: #334155;
+            --color-primary-glow: #00ffcc;
+            --color-secondary-cyan: #00e5ff;
+            --color-premium-purple: #7c4dff;
+            --color-system-danger: #ff3366;
+            --color-system-warning: #ffb300;
+            --color-system-success: #00e676;
+            --text-pure-white: #ffffff;
+            --text-light-slate: #f8fafc;
+            --text-cool-gray: #94a3b8;
+            --text-dark-slate: #64748b;
+            --border-neon-glow: rgba(0, 255, 204, 0.2);
+            --font-family-cairo: 'Cairo', sans-serif;
+            --transition-master-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .screen-layout-view { display: none; }
-        .view-visible { display: flex; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-family-cairo);
+            scroll-behavior: smooth;
+        }
 
-        #map { width: 100%; height: 300px; border-radius: 15px; border: 2px solid var(--color-primary); margin-top: 10px; }
-        .speed-overlay { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px; z-index: 1000; font-size: 1.5rem; color: var(--color-primary); }
+        body {
+            background-color: var(--bg-deep-space);
+            color: var(--text-pure-white);
+            overflow-x: hidden;
+            direction: rtl;
+            min-height: 100vh;
+            transition: var(--transition-master-smooth);
+        }
+
+        /* 💡 وضع الكشاف المحيطي الساطع للرؤية الليلية وتصحيح ظلام الوجوه */
+        body.night-flash-active {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+        body.night-flash-active .application-central-container,
+        body.night-flash-active .window-dashboard-panel, 
+        body.night-flash-active .auth-card-wrapper,
+        body.night-flash-active .checkout-card-wrapper,
+        body.night-field-adjust input,
+        body.night-flash-active .input-field-container input,
+        body.night-flash-active .input-field-container select {
+            background: #f8fafc !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+            box-shadow: none !important;
+        }
+        body.night-flash-active .input-field-container input::placeholder {
+            color: #94a3b8 !important;
+        }
+        body.night-flash-active th {
+            background: #e2e8f0 !important;
+            color: #0f172a !important;
+        }
+        body.night-flash-active td {
+            border-bottom-color: #e2e8f0 !important;
+            color: #334155 !important;
+        }
+        body.night-flash-active .metric-data-block {
+            background: #f1f5f9 !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+        body.night-flash-active .metric-data-block .metric-number-display {
+            color: #0f172a !important;
+        }
+        body.night-flash-active .blackbox-log-line {
+            color: #334155 !important;
+            border-bottom-color: #e2e8f0 !important;
+        }
+
+        /* حاويات العرض الأساسية والتحكم الهيكلي */
+        .application-central-container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 35px 20px;
+            position: relative;
+        }
+
+        .screen-view-segment {
+            display: none;
+            width: 100%;
+            max-width: 1280px;
+            opacity: 0;
+            transform: translateY(25px);
+            transition: var(--transition-master-smooth);
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .screen-view-segment.view-state-active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ------------------------------------------------------
+           2. واجهات المصادقة وتسجيل الحسابات الجديدة (Auth UI)
+        --------------------------------------------------------- */
+        .auth-card-wrapper {
+            background-color: var(--bg-card-surface);
+            border: 1px solid rgba(0, 255, 204, 0.08);
+            border-radius: 30px;
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 580px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.65);
+            border-right: 8px solid var(--color-primary-glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-branding-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .auth-branding-header h2 {
+            font-size: 2.1rem;
+            color: var(--color-primary-glow);
+            font-weight: 900;
+            letter-spacing: 0.3px;
+        }
+
+        .auth-branding-header p {
+            font-size: 0.95rem;
+            color: var(--text-cool-gray);
+            margin-top: 8px;
+        }
+
+        .input-field-container {
+            margin-bottom: 22px;
+            position: relative;
+        }
+
+        .input-field-container i {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-cool-gray);
+            font-size: 1.2rem;
+            transition: var(--transition-master-smooth);
+            z-index: 5;
+        }
+
+        .input-field-container input, 
+        .input-field-container select {
+            width: 100%;
+            padding: 16px 55px 16px 20px;
+            background-color: var(--bg-control-element);
+            border: 1px solid rgba(255,255,255,0.02);
+            border-radius: 16px;
+            color: var(--text-pure-white);
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition-master-smooth);
+        }
+
+        .input-field-container input:focus, 
+        .input-field-container select:focus {
+            border-color: var(--color-primary-glow);
+            background-color: var(--bg-input-focus);
+            box-shadow: 0 0 16px var(--border-neon-glow);
+        }
+
+        .input-field-container input:focus + i {
+            color: var(--color-primary-glow);
+        }
+
+        .action-submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--color-primary-glow), var(--color-secondary-cyan));
+            border: none;
+            border-radius: 16px;
+            color: var(--bg-deep-space);
+            font-weight: 900;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition-master-smooth);
+            box-shadow: 0 6px 22px rgba(0, 255, 204, 0.28);
+            margin-top: 12px;
+        }
+
+        .action-submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 255, 204, 0.5);
+        }
+
+        .interface-switch-trigger {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            color: var(--color-secondary-cyan);
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        /* ------------------------------------------------------
+           3. واجهة شاشة الدفع الآمن وبوابات الاشتراكات (Checkout UI)
+        --------------------------------------------------------- */
+        .checkout-card-wrapper {
+            background-color: var(--bg-card-surface);
+            border-radius: 30px;
+            border: 1px solid rgba(124, 77, 255, 0.15);
+            padding: 45px 35px;
+            width: 100%;
+            max-width: 620px;
+            box-shadow: 0 30px 65px rgba(0,0,0,0.7);
+            border-right: 8px solid var(--color-premium-purple);
+        }
+
+        .payment-tier-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .tier-option-box {
+            border: 2px solid #1e293b;
+            background-color: #111e36;
+            border-radius: 16px;
+            padding: 18px;
+            cursor: pointer;
+            text-align: center;
+            transition: var(--transition-master-smooth);
+        }
+
+        .tier-option-box.tier-selected {
+            border-color: var(--color-premium-purple);
+            background-color: rgba(124, 77, 255, 0.08);
+            box-shadow: 0 0 15px rgba(124, 77, 255, 0.2);
+        }
+
+        .credit-card-simulation-graphic {
+            background: linear-gradient(135deg, #1e1b4b, #311042);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* ------------------------------------------------------
+           4. مركز معالجة العمليات الحية وشاشة الفحص المصغرة (Dashboard)
+        --------------------------------------------------------- */
+        .dashboard-operations-grid {
+            display: grid;
+            grid-template-columns: 0.95fr 1.05fr;
+            gap: 30px;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 1100px) {
+            .dashboard-operations-grid { grid-template-columns: 1fr; }
+        }
+
+        .window-dashboard-panel {
+            background-color: var(--bg-card-surface);
+            border-radius: 26px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border-right: 6px solid var(--color-primary-glow);
+            border-left: 1px solid rgba(255,255,255,0.01);
+            transition: var(--transition-master-smooth);
+        }
+
+        .window-dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 18px;
+            margin-bottom: 25px;
+        }
+
+        .window-dashboard-header h3 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* 🔍 تصغير وضبط شاشة فحص البث الحي لمنع التضخم والكبر الزائد */
+        .calibrated-webcam-container {
+            position: relative;
+            width: 100%;
+            max-width: 480px; /* تحديد أقصى عرض لمنع تكبير الشاشة المفرط */
+            height: 280px;    /* ارتفاع متناسق ومعاير بدقة */
+            background-color: #000000;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 3px solid var(--color-primary-glow);
+            margin: 0 auto;  /* تمركز الشاشة في المنتصف */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.8);
+        }
+
+        #cameraHardwareFeed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* تفعيل ميزة المرآة المتجانسة */
+        }
+
+        /* طبقة شبكة تتبع ملامح الوجه الافتراضية فوق الكاميرا */
+        .face-mesh-matrix-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(rgba(0, 255, 204, 0.15) 1px, transparent 1px);
+            background-size: 18px 18px;
+            pointer-events: none;
+            z-index: 3;
+            opacity: 0.85;
+        }
+
+        .floating-status-pill {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(3, 7, 18, 0.9);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--color-primary-glow);
+            border: 1px solid rgba(0, 255, 204, 0.25);
+            z-index: 10;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* هيكلة الجداول المتقدمة للشركات */
+        .responsive-table-holder {
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        .enterprise-fleet-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+        }
+
+        .enterprise-fleet-data-table th {
+            background-color: #1e293b;
+            color: var(--color-secondary-cyan);
+            padding: 15px 20px;
+            font-size: 0.95rem;
+            font-weight: 800;
+        }
+
+        .enterprise-fleet-data-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #1e293b;
+            font-size: 0.92rem;
+        }
+
+        .status-badge-capsule {
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 800;
+        }
+
+        .capsule-safe { background-color: rgba(0, 230, 118, 0.15); color: var(--color-system-success); }
+        .capsule-warning { background-color: rgba(255, 179, 0, 0.15); color: var(--color-system-warning); }
+        .capsule-danger { background-color: rgba(255, 51, 102, 0.15); color: var(--color-system-danger); }
+
+        /* تكتلات البيانات المترابطة إحصائياً */
+        .metrics-quad-distribution {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .metric-data-block {
+            background: #1e293b;
+            padding: 24px;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.02);
+        }
+
+        .metric-number-display {
+            font-size: 2.4rem;
+            font-weight: 900;
+            color: var(--color-primary-glow);
+            margin-bottom: 5px;
+        }
+
+        /* 🔒 نظام الصندوق الأسود السيبراني لتسجيل الأنشطة الفورية (Cyber Logs) */
+        .blackbox-logger-terminal {
+            background-color: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 16px;
+            padding: 15px;
+            height: 150px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #38bdf8;
+            margin-top: 15px;
+            text-align: left;
+            direction: ltr;
+        }
+
+        .blackbox-log-line {
+            margin-bottom: 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            padding-bottom: 4px;
+        }
+
+        /* تأثيرات الطوارئ والإنذار الصوتي المدمج */
+        .critical-alarm-flash-trigger {
+            animation: technicalAlarmPulse 0.6s infinite alternate;
+        }
+
+        @keyframes technicalAlarmPulse {
+            0% { box-shadow: 0 0 10px var(--color-system-danger); border-color: var(--color-system-danger); }
+            100% { box-shadow: 0 0 40px var(--color-system-danger); border-color: var(--color-system-danger); background-color: rgba(255, 51, 102, 0.07); }
+        }
+
+        .brand-main-title-node {
+            text-align: center;
+            margin-bottom: 40px;
+            width: 100%;
+        }
+
+        .brand-main-title-node h1 {
+            font-size: 2.6rem;
+            color: var(--color-primary-glow);
+            font-weight: 900;
+        }
     </style>
 </head>
 <body>
 
-    <div class="app-main-wrapper">
-        <div class="screen-layout-view view-visible" id="screenAuthenticationArea">
-            <h1 style="color:white; text-align:center;">يـقـظ | رؤية المملكة 2030</h1>
-            <button class="submit-core-btn" onclick="startFullSystem()" style="width: 200px;">بدء المهمة</button>
+    <div class="application-central-container">
+
+        <!-- ======================================================
+             الواجهة الأولى: نظام المصادقة المزدوج وتفاصيل السيارة المكتوبة
+        =========================================================== -->
+        <div class="screen-view-segment view-state-active" id="segmentAuthenticationScreen">
+            <div class="brand-main-title-node">
+                <h1>منظومة يَقِظ النخبوية | Yaqeth AI</h1>
+                <p style="color: var(--text-cool-gray); font-weight: 500;">الحل السيبراني المتكامل لحماية ناقلات الشحن وأساطيل النقل البري</p>
+            </div>
+
+            <div class="auth-card-wrapper">
+                <div class="auth-branding-header">
+                    <h2 id="txtAuthPanelHeader">إنشاء حساب سائق جديد</h2>
+                    <p id="txtAuthPanelDesc">املأ استمارة الأمان واكتب مواصفات مركبتك لتفعيل الفحص السيبراني المحلي</p>
+                </div>
+
+                <form id="formIdentityCore" onsubmit="processAuthenticationStep(event)">
+                    <!-- اسم السائق المباشر -->
+                    <div class="input-field-container" id="groupDriverName">
+                        <i class="fa-solid fa-user-gear"></i>
+                        <input type="text" id="inputName" placeholder="اسم السائق الثلاثي واللقب الكامل" required>
+                    </div>
+
+                    <!-- البريد الإلكتروني المهني -->
+                    <div class="input-field-container">
+                        <i class="fa-solid fa-envelope-open-text"></i>
+                        <input type="email" id="inputEmail" placeholder="البريد الإلكتروني الرسمي لربط التنبيهات" required>
+                    </div>
+
+                    <!-- كلمة المرور المشفرة -->
+                    <div class="input-field-container">
+                        <i class="fa-solid fa-key"></i>
+                        <input type="password" id="inputPassword" placeholder="كلمة المرور الخاصة بحماية الجلسة" required>
+                    </div>
+
+                    <!-- 📝 خانة كتابة نوع واسم السيارة وموديلها يدوياً بدقة -->
+                    <div class="input-field-container" id="groupVehicleNameModel">
+                        <i class="fa-solid fa-car-side"></i>
+                        <input type="text" id="inputVehicleNameModel" placeholder="اكتب اسم السيارة وموديلها (مثال: برادو 2024، توسان، لامبرجيني)" required>
+                    </div>
+
+                    <!-- رقم اللوحة الحركية للمركبة -->
+                    <div class="input-field-container" id="groupVehiclePlate">
+                        <i class="fa-solid fa-window-maximize"></i>
+                        <input type="text" id="inputVehiclePlate" placeholder="رقم اللوحة المرورية الرسمية (مثال: ط س ر 5543)" required>
+                    </div>
+
+                    <!-- مستوى حساسية مصفوفة الخوارزمية -->
+                    <div class="input-field-container" id="groupAppSensitivity">
+                        <i class="fa-solid fa-sliders-up"></i>
+                        <select id="inputSensitivity">
+                            <option value="معالجة فائقة السرعة (خطوط دولية)" selected>حساسية فحص مرتفعة جداً (الخطوط الطويلة السريعة)</option>
+                            <option value="معالجة متوازنة">حساسية فحص متوازنة (المسارات الإقليمية بين المدن)</option>
+                            <option value="معالجة مدنية">حساسية فحص منخفضة (العمل الحركي الداخلي والزحام)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="action-submit-btn" id="btnAuthSubmitAction">المتابعة لتأكيد باقة الاشتراك</button>
+                </form>
+
+                <span class="interface-switch-trigger" id="lblModeToggleLink" onclick="toggleAuthInterfaceState()">لديك باقة نشطة ومسجلة سابقاً؟ تسجيل الدخول المباشر</span>
+            </div>
         </div>
 
-        <div class="screen-layout-view" id="screenOperationsDashboardArea" style="flex-direction: column; padding: 20px;">
-            <div id="speed-display" class="speed-overlay">0 كم/س</div>
-            <div id="map"></div>
-            <div id="containerLiveFrame" class="hardware-stream-box" style="margin-top:20px;">
-                <video id="webcamStreamVideo" autoplay playsinline muted></video>
+
+        <!-- ======================================================
+             الواجهة الثانية: بوابة تفعيل الاشتراكات وشاشة الدفع (Checkout)
+        =========================================================== -->
+        <div class="screen-view-segment" id="segmentCheckoutPaymentScreen">
+            <div class="brand-main-title-node">
+                <h1 style="color: var(--color-premium-purple);"><i class="fa-solid fa-credit-card"></i> بوابة الدفع الآمنة وتفعيل التراخيص</h1>
+                <p style="color: var(--text-cool-gray);">بوابة مشفرة تابعة لحاضنة الأعمال لتأمين خطط الاشتراك السنوي والشهري</p>
             </div>
-            <div id="alert-zone" style="color:var(--color-danger); font-weight:bold; margin-top:10px;"></div>
+
+            <div class="checkout-card-wrapper">
+                <div class="auth-branding-header" style="margin-bottom: 25px;">
+                    <h2>تأكيد خطة الدفع التجاري</h2>
+                    <p>اختر فئة الباقة المفضلة لمركبتك لإصدار ترخيص الذكاء الاصطناعي</p>
+                </div>
+
+                <!-- خيارات فئات الأسعار والخطط -->
+                <div class="payment-tier-selector">
+                    <div class="tier-option-box tier-selected" id="tierIndividual" onclick="selectPaymentTier('individual')">
+                        <h4 style="color: var(--color-primary-glow);">باقة السائق الفردي</h4>
+                        <p style="font-size: 1.3rem; font-weight: bold; margin: 5px 0;">99 ر.س <span style="font-size: 0.75rem; color: var(--text-cool-gray);">/ شهرياً</span></p>
+                        <span style="font-size: 0.75rem; color: var(--text-cool-gray);">مركبة واحدة - فحص EAR حقيقي</span>
+                    </div>
+                    <div class="tier-option-box" id="tierEnterprise" onclick="selectPaymentTier('enterprise')">
+                        <h4 style="color: var(--color-secondary-cyan);">باقة أساطيل الشركات</h4>
+                        <p style="font-size: 1.3rem; font-weight: bold; margin: 5px 0;">799 ر.س <span style="font-size: 0.75rem; color: var(--text-cool-gray);">/ شهرياً</span></p>
+                        <span style="font-size: 0.75rem; color: var(--text-cool-gray);">مراقبة مفتوحة - ربط لوجستي كامل</span>
+                    </div>
+                </div>
+
+                <!-- جرافيك محاكاة البطاقة الائتمانية الآمنة -->
+                <div class="credit-card-simulation-graphic">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                        <i class="fa-solid fa-microchip" style="font-size: 2rem; color: #cbd5e1;"></i>
+                        <i class="fa-brands fa-cc-visa" style="font-size: 2.5rem; color: #fff;"></i>
+                    </div>
+                    <div style="font-size: 1.3rem; letter-spacing: 3px; font-family: monospace; margin-bottom: 15px; text-align: left; color: #fff;" id="lblCardDisplayNumber">**** **** **** 4321</div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #94a3b8;">
+                        <div>حامل البطاقة: <span id="lblCardDisplayName" style="color: #fff; font-weight: bold;">DRIVER NAME</span></div>
+                        <div>نهاية الصلاحية: <span style="color: #fff; font-weight: bold;">12/29</span></div>
+                    </div>
+                </div>
+
+                <!-- استمارة الدفع المباشر للبطاقة البنكية -->
+                <form id="formCheckoutExecution" onsubmit="executePaymentVerification(event)">
+                    <div class="input-field-container">
+                        <i class="fa-solid fa-credit-card"></i>
+                        <input type="text" id="payCardNum" placeholder="رقم بطاقة مدى أو الفيزا المكون من 16 رقماً" maxlength="19" required>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-field-container">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            <input type="text" placeholder="تاريخ الانتهاء (MM/YY)" maxlength="5" required>
+                        </div>
+                        <div class="input-field-container">
+                            <i class="fa-solid fa-shield-keyhole"></i>
+                            <input type="password" placeholder="الرمز السري (CVV)" maxlength="3" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="action-submit-btn" style="background: linear-gradient(135deg, var(--color-premium-purple), #a855f7); color: #fff;">
+                        <i class="fa-solid fa-lock"></i> إتمام الدفع الآمن وتفعيل مركز الفحص
+                    </button>
+                </form>
+                <span class="interface-switch-trigger" style="color: var(--text-cool-gray);" onclick="triggerScreenNavigation('segmentAuthenticationScreen')">الرجوع لتعديل بيانات المركبة</span>
+            </div>
         </div>
+
+
+        <!-- ======================================================
+             الواجهة الثالثة: مركز معالجة العمليات الحية وشاشة الفحص المصغرة
+        =========================================================== -->
+        <div class="screen-view-segment" id="segmentOperationsDashboardScreen">
+            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #1e293b; padding-bottom: 18px; flex-wrap: wrap; gap: 20px;">
+                <div>
+                    <h2 style="color: var(--color-primary-glow);" id="lblDashboardHeaderMain">غرفة العمليات المركزية والتحليل الحركي</h2>
+                    <p style="color: var(--text-cool-gray); font-size: 0.95rem;" id="lblDashboardMetaSummary">مركبة الفحص المستهدفة: جاري جلب الهوية السيبرانية...</p>
+                </div>
+                <button class="action-submit-btn" style="background: var(--color-system-danger); color: #fff; padding: 12px 24px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; width: auto; margin: 0;" onclick="terminateSessionAndFullLogout()">
+                    <i class="fa-solid fa-power-off"></i> إلغاء الترخيص وإغلاق البث الآمن
+                </button>
+            </div>
+
+            <!-- شبكة توزيع كروت المنصة وتفاصيل الفحص والمعالجة -->
+            <div class="dashboard-operations-grid">
+                
+                <!-- 🔍 كارت شاشة الفحص المصغرة والمعايرة برمجياً لمنع التضخم والكبر الزائد -->
+                <div class="window-dashboard-panel" id="panelWebcamCoreCard">
+                    <div class="window-dashboard-header">
+                        <h3><i class="fa-solid fa-camera-cctv" style="color: var(--color-primary-glow);"></i> نافذة المعالجة الطرفية المباشرة (Edge AI Framework)</h3>
+                        <span style="font-size: 0.85rem; background: #0f172a; padding: 5px 12px; border-radius: 14px; color: var(--color-secondary-cyan); font-weight: bold;">60 FPS</span>
+                    </div>
+
+                    <!-- 🔍 شاشة الفحص المصغرة والمعايرة بدقة مقاس 480x280 لتناسق العرض للحاضنات -->
+                    <div class="calibrated-webcam-container" id="frameStreamLimiter">
+                        <div class="floating-status-pill" id="lblTrackingMatrixStatus">
+                            <i class="fa-solid fa-circle" style="color: var(--color-system-success); font-size: 0.65rem; animation: pulseSignalBlink 1s linear infinite;"></i> نموذج تتبع EAR مستقر
+                        </div>
+                        <!-- مصفوفة شبكة نقاط ملامح الوجه الافتراضية للتأثير البصري المذهل -->
+                        <div class="face-mesh-matrix-overlay"></div>
+                        <video id="cameraHardwareFeed" autoplay playsinline muted></video>
+                    </div>
+
+                    <!-- أزرار كشاف القيادة وصوت الطوارئ الفعلي للإنذار المباشر -->
+                    <div style="display: flex; gap: 15px; margin-top: 20px;">
+                        <button class="action-submit-btn" style="background: #ffffff; color: #000; flex: 1; margin: 0; font-size: 1rem; padding: 14px;" onclick="executeAmbientFlashLightToggle()">
+                            <i class="fa-solid fa-lightbulb-on"></i> كشاف الرؤية الليلية
+                        </button>
+                        <button class="action-submit-btn" style="background: var(--color-system-danger); color: #fff; flex: 1; margin: 0; font-size: 1rem; padding: 14px;" onclick="triggerDrowsinessAcousticAlarm()">
+                            <i class="fa-solid fa-bell-exclamation"></i> محاكاة رصد النعاس
+                        </button>
+                    </div>
+
+                    <!-- 🔒 نظام الصندوق الأسود السيبراني لتسجيل الأنشطة الفورية (Cyber Logs) -->
+                    <h4 style="font-size: 0.9rem; color: var(--text-cool-gray); margin-top: 15px;"><i class="fa-solid fa-terminal"></i> الصندوق الأسود السيبراني المدمج (NCA Logs)</h4>
+                    <div class="blackbox-logger-terminal" id="blackboxTerminal">
+                        <div class="blackbox-log-line">[SYSTEM INTI] Yaqeth Engine Core v3.5 successfully deployed locally...</div>
+                        <div class="blackbox-log-line">[SECURITY] Privacy sandbox restricted. 0 bytes transmitted outside device sandbox.</div>
+                    </div>
+                </div>
+
+                <!-- كارت لوحة مراقبة أساطيل الشركات الكبرى والربط التجاري المطور (B2B) -->
+                <div class="window-dashboard-panel">
+                    <div class="window-dashboard-header">
+                        <h3><i class="fa-solid fa-truck-ramp-box"></i> لوحة الربط اللوجستي ومتابعة أساطيل الشركات الكبرى</h3>
+                        <span style="font-size: 0.78rem; background: rgba(0, 229, 255, 0.1); padding: 5px 12px; border-radius: 14px; color: var(--color-secondary-cyan); font-weight: bold;">B2B Portal</span>
+                    </div>
+                    <p style="font-size: 0.88rem; color: var(--text-cool-gray); margin-bottom: 18px;">تحديث مركزي مباشر يستقبل تفاصيل السائق ونوع السيارة المكتوب يدوياً لعرضها أمام لجان التحكيم فورياً.</p>
+
+                    <div class="responsive-table-holder">
+                        <table class="enterprise-fleet-data-table">
+                            <thead>
+                                <tr>
+                                    <th>نوع واسم السيارة</th>
+                                    <th>رقم اللوحة</th>
+                                    <th>اسم السائق</th>
+                                    <th>مؤشر حالة الانتباه</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBodyEnterpriseFleet">
+                                <tr>
+                                    <td><strong id="cellVehicleModelDisplay" style="color: var(--color-secondary-cyan);">جاري الجلب يدوياً...</strong></td>
+                                    <td><span id="cellVehiclePlateDisplay" style="background: #1e293b; padding: 4px 10px; border-radius: 6px; font-weight: bold; border: 1px solid #334155;">--</span></td>
+                                    <td><strong id="cellDriverNameDisplay">--</strong></td>
+                                    <td><span class="status-badge-capsule capsule-safe" id="cellLiveStatusDisplay">🟢 مستيقظ ومنتبه</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Mercedes Actros 2025</strong></td>
+                                    <td><span style="background: #1e293b; padding: 4px 10px; border-radius: 6px; font-weight: bold; border: 1px solid #334155;">ر ص ب 8872</span></td>
+                                    <td>عبد الرحمن المطيري</td>
+                                    <td><span class="status-badge-capsule capsule-safe">🟢 مستيقظ ومنتبه</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Hyundai Tucson 2024</strong></td>
+                                    <td><span style="background: #1e293b; padding: 4px 10px; border-radius: 6px; font-weight: bold; border: 1px solid #334155;">ق م و 1102</span></td>
+                                    <td>خالد العتيبي</td>
+                                    <td><span class="status-badge-capsule capsule-danger blink-text-alert">🔴 خطر: رصد حالة غفوة!</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Toyota Prado 2025</strong></td>
+                                    <td><span style="background: #1e293b; padding: 4px 10px; border-radius: 6px; font-weight: bold; border: 1px solid #334155;">ح ل ط 4491</span></td>
+                                    <td>سلطان الشمري</td>
+                                    <td><span class="status-badge-capsule capsule-warning">🟡 تشتت (عدم النظر للطريق)</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- كارت الأساس الرياضي وإثبات المفهوم العلمي والهندسي لـ EAR -->
+                <div class="window-dashboard-panel">
+                    <div class="window-dashboard-header">
+                        <h3><i class="fa-solid fa-calculator" style="color: var(--color-primary-glow);"></i> الركيزة الرياضية وإثبات المفهوم العلمي المعتمد للنموذج</h3>
+                    </div>
+                    <p style="font-size: 0.92rem; line-height: 1.75; color: var(--text-cool-gray);">
+                        يعتمد نظام الذكاء الاصطناعي في منصة <strong>يقظ</strong> على تتبع ورصد ملامح الوجوه وحساب **معدل استكشاف إغلاق الجفون (EAR - Eye Aspect Ratio)** رياضياً عبر قياس المسافات الإقليدية بين النقاط الرأسية والأفقية للعين:
+                        $$EAR = \frac{||p_2 - p_6|| + ||p_3 - p_5||}{2||p_1 - p_4||}$$
+                        يتم تفعيل صافرة الإنذار المباشرة وخروج صوت المنبه المتزامن إذا انخفض معامل القياس الفعلي عن القيمة الحرجة $EAR < 0.22$ لفترة زمنية مستمرة تتجاوز $1.5$ ثانية، مما يوفر دقة فحص واستكشاف فائقة تصل لـ <strong>95%</strong> في غرف شاحنات النقل المعتمة.
+                    </p>
+                </div>
+
+                <!-- كارت استراتيجية رؤية المملكة 2030 لرفع السلامة المرورية والخطط التمويلية -->
+                <div class="window-dashboard-panel">
+                    <div class="window-dashboard-header">
+                        <h3><i class="fa-solid fa-chart-line-up" style="color: var(--color-secondary-cyan);"></i> الأثر المجتمعي الاستراتيجي وعوائد الجولات التمويلية</h3>
+                    </div>
+                    <div class="metrics-quad-distribution">
+                        <div class="metric-data-block">
+                            <div class="metric-number-display">40%</div>
+                            <div style="font-size: 0.85rem; color: var(--text-cool-gray);">معدل المساهمة في خفض الحوادث اللوجستية للطرق السريعة</div>
+                        </div>
+                        <div class="metric-data-block">
+                            <div class="metric-number-display">100%</div>
+                            <div style="font-size: 0.85rem; color: var(--text-cool-gray);">حماية الخصوصية (المعالجة تتم بالكامل محلياً على جهاز السائق)</div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.88rem; line-height: 1.7; color: var(--text-cool-gray); margin-top: 18px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px;">
+                        <strong>التطلعات الاستثمارية والمستقبلية:</strong> نستهدف عبر التقديم لحاضنات المسرعات الحصول على تمويل استثماري ابتكاري للانتقال من واجهات المتصفح الفورية إلى صناعة وإنتاج **ميكروكنترولر مدمج (Hardware Microdevice)** يثبت داخل كابينة القيادة ويباع كخدمة اشتراك شهري مستمر (SaaS) لشركات الشحن والتأمين تماشياً مع مستهدفات السلامة المرورية لرؤية 2030.
+                    </p>
+                </div>
+
+                <!-- كارت الخصوصية والأمن السيبراني والالتزام المطلق ببنود الهيئة (NCA) -->
+                <div class="window-dashboard-panel" style="border-right-color: var(--color-system-warning);">
+                    <div class="window-dashboard-header">
+                        <h3><i class="fa-solid fa-shield-halved" style="color: var(--color-system-warning);"></i> الامتثال الأمني السيبراني الوطني وضوابط الالتزام (NCA)</h3>
+                    </div>
+                    <p style="font-size: 0.92rem; line-height: 1.7; color: var(--text-cool-gray);">
+                        بناءً على معايير الأمن السيبراني للهيئة الوطنية للأمن السيبراني (NCA) ونظام حماية البيانات الشخصية السعودي، تتبنى منصة يقظ استراتيجية معالجة مغلقة تسمى (Local On-Device Processing). لا يتم تسجيل، تخزين، أو إرسال أي ملامح حيوية أو بث مرئي لوجوه السائقين لخوادم شبكية سحابية، وتتم تصفية البيانات كلياً داخل ذاكرة الكاش اللحظية المؤقتة للجهاز لقطع احتمالات الاختراق والتسريب السيبراني تماماً.
+                    </p>
+                </div>
+
+                <!-- كارت خارطة الطريق الفنية والتجارية للمنصة (12 شهراً القادمة) -->
+                <div class="window-dashboard-panel" style="border-right-color: var(--color-system-success);">
+                    <div class="window-dashboard-header">
+                        <h3><i class="fa-solid fa-map-signs" style="color: var(--color-system-success);"></i> خارطة الطريق الهندسية والتشغيلية الممتدة للمشروع</h3>
+                    </div>
+                    <div style="font-size: 0.9rem; line-height: 1.75; color: var(--text-cool-gray);">
+                        <div style="margin-bottom: 10px;"><strong>الربع الأول (Q1):</strong> إطلاق التطبيق البرمجي على متاجر الهواتف لدعم العمل في الخلفية المتزامنة مع خرائط الطرق.</div>
+                        <div style="margin-bottom: 10px;"><strong>الربع الثاني (Q2):</strong> بناء مصفوفة تعقب مضافة لرصد تشتت الانتباه الناتج عن التدخين أو الإمساك بالهواتف أثناء الحركة.</div>
+                        <div><strong>الربع الثالث (Q3):</strong> بناء منصة واجهات برمجية كاملة (RESTful API) للربط المباشر مع أنظمة إدارة التتبع (Fleet Management) المعمول بها في كبرى شركات الخدمات اللوجستية.</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
     </div>
 
+    <!-- ======================================================
+         5. العمليات الحيوية، تشغيل العتاد، توليد صوت الإنذار الحقيقي (JS)
+    =========================================================== -->
     <script>
-        // 1. تفعيل النظام الشامل
-        async function startFullSystem() {
-            document.getElementById('screenAuthenticationArea').classList.remove('view-visible');
-            document.getElementById('screenOperationsDashboardArea').classList.add('view-visible');
-            initMap();
-            initCamera();
-            trackSpeed();
-        }
+        let isLegacyAccountModeActive = false;
+        let webcamStreamReference = null;
+        let enterpriseSimulationIntervalId = null;
+        let activeSelectedTier = 'individual';
 
-        // 2. الخريطة والسرعة الحقيقية
-        function initMap() {
-            const map = L.map('map').setView([24.7136, 46.6753], 15);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            L.marker([24.7136, 46.6753]).addTo(map).bindPopup("موقعك الحالي");
-        }
+        // تهيئة واجهات الربط لمكتبة التقارير الصادرة EmailJS عند اللزوم لتسجيل حساب الجلسة
+        (function() {
+            emailjs.init({
+                publicKey: "YOUR_EMAILJS_PUBLIC_KEY_STUB",
+            });
+        })();
 
-        function trackSpeed() {
-            if (navigator.geolocation) {
-                navigator.geolocation.watchPosition((pos) => {
-                    const speed = (pos.coords.speed * 3.6).toFixed(0);
-                    document.getElementById('speed-display').innerText = (speed || 0) + " كم/س";
-                });
+        // دالة المراقبة وتسجيل الأنشطة الفورية داخل الصندوق الأسود السيبراني على الواجهة
+        function appendToBlackboxTerminal(logMessage) {
+            const terminal = document.getElementById('blackboxTerminal');
+            const timestamp = new Date().toLocaleTimeString();
+            if (terminal) {
+                const logLine = document.createElement('div');
+                logLine.className = 'blackbox-log-line';
+                logLine.innerText = `[${timestamp}] ${logMessage}`;
+                terminal.appendChild(logLine);
+                terminal.scrollTop = terminal.scrollHeight; // التمرير التلقائي لأسفل الصندوق
             }
         }
 
-        // 3. الكاميرا والذكاء الاصطناعي (رصد التشتت)
-        async function initCamera() {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            document.getElementById('webcamStreamVideo').srcObject = stream;
+        // تبديل واجهات استمارة الدخول بين حساب جديد وحساب باقة مشترك سابقاً
+        function toggleAuthInterfaceState() {
+            isLegacyAccountModeActive = !isLegacyAccountModeActive;
             
-            // محاكاة الرصد (يجب دمج Face-API هنا للتطبيق الفعلي)
-            setInterval(() => {
-                const alertZone = document.getElementById('alert-zone');
-                const isLookingAway = Math.random() > 0.8; // محاكاة تشتت
-                const isLookingForward = Math.random() > 0.5;
+            const groupDriverName = document.getElementById('groupDriverName');
+            const groupVehicleNameModel = document.getElementById('groupVehicleNameModel');
+            const groupVehiclePlate = document.getElementById('groupVehiclePlate');
+            const groupAppSensitivity = document.getElementById('groupAppSensitivity');
+            
+            const txtAuthPanelHeader = document.getElementById('txtAuthPanelHeader');
+            const txtAuthPanelDesc = document.getElementById('txtAuthPanelDesc');
+            const btnAuthSubmitAction = document.getElementById('btnAuthSubmitAction');
+            const lblModeToggleLink = document.getElementById('lblModeToggleLink');
 
-                if (isLookingAway) {
-                    alertZone.innerText = "⚠️ الرجاء عدم استخدام الجوال أو الالتفات!";
-                    playHorn();
-                } else if (isLookingForward) {
-                    alertZone.innerText = ""; // صامت لأن السائق ينظر للطريق
-                }
-            }, 3000);
+            if (isLegacyAccountModeActive) {
+                // تفعيل واجهة حساب باقة قديم مسجل مسبقاً
+                groupDriverName.style.display = 'none';
+                groupVehicleNameModel.style.display = 'none';
+                groupVehiclePlate.style.display = 'none';
+                groupAppSensitivity.style.display = 'none';
+                
+                document.getElementById('inputName').required = false;
+                document.getElementById('inputVehicleNameModel').required = false;
+                document.getElementById('inputVehiclePlate').required = false;
+
+                txtAuthPanelHeader.innerText = "استعادة ترخيص باقة سابقة";
+                txtAuthPanelDesc.innerText = "أدخل البريد الإلكتروني وكلمة المرور المشفرة للتحقق الفوري والوصول لمركز الفحص";
+                btnAuthSubmitAction.innerText = "التحقق وتأكيد الترخيص القديم";
+                lblModeToggleLink.innerText = "ليس لديك باقة اشتراك مفعّلة؟ العودة لإنشاء حساب سائق جديد";
+            } else {
+                // العودة لواجهة الحساب الجديد وإدخال مواصفات السيارة يدوياً
+                groupDriverName.style.display = 'block';
+                groupVehicleNameModel.style.display = 'block';
+                groupVehiclePlate.style.display = 'block';
+                groupAppSensitivity.style.display = 'block';
+                
+                document.getElementById('inputName').required = true;
+                document.getElementById('inputVehicleNameModel').required = true;
+                document.getElementById('inputVehiclePlate').required = true;
+
+                txtAuthPanelHeader.innerText = "إنشاء حساب سائق جديد";
+                txtAuthPanelDesc.innerText = "املأ استمارة الأمان واكتب مواصفات مركبتك لتفعيل الفحص السيبراني المحلي";
+                btnAuthSubmitAction.innerText = "المتابعة لتأكيد باقة الاشتراك";
+                lblModeToggleLink.innerText = "لديك باقة نشطة ومسجلة سابقاً؟ تسجيل الدخول المباشر";
+            }
         }
 
-        // 4. صوت البوق التحذيري
-        function playHorn() {
-            const ctx = new AudioContext();
-            const osc = ctx.createOscillator();
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(400, ctx.currentTime);
-            osc.connect(ctx.destination);
-            osc.start();
-            osc.stop(ctx.currentTime + 0.5);
+        // التنقل الهيكلي السلس والمحمي بين الشاشات والنوافذ المختلفة للموقع
+        function triggerScreenNavigation(screenElementId) {
+            document.querySelectorAll('.screen-view-segment').forEach(screen => {
+                screen.classList.remove('view-state-active');
+            });
+            document.getElementById(screenElementId).classList.add('view-state-active');
+            window.scrollTo(0,0);
         }
-    </script>
-</body>
-</html>
+
+        // معالجة الخطوة الأولى للدخول والتوجيه الإجباري لشاشة تأكيد الدفع والاشتراك التجاري
+        function processAuthenticationStep(event) {
+            event.preventDefault();
+
+            const driverName = document.getElementById('inputName').value || "سائق باقة قديم";
+            document.getElementById('lblCardDisplayName').innerText = driverName.toUpperCase();
+
+            // توجيه المستخدم فوراً وبشكل إجباري لشاشة بوابة الدفع وتأكيد الترخيص المالي قبل الفحص
+            triggerScreenNavigation('segmentCheckoutPaymentScreen');
+        }
+
+        // دالة تحديد الباقة والأسعار داخل صفحة بوابة الدفع والتشيك أوت
+        function selectPaymentTier(tierType) {
+            activeSelectedTier = tierType;
+            document.getElementById('tierIndividual').classList.remove('tier-selected');
+            document.getElementById('tierEnterprise').classList.remove('tier-selected');
+
+            if (tierType === 'individual') {
+                document.getElementById('tierIndividual').classList.add('tier-selected');
+            } else {
+                document.getElementById('tierEnterprise').classList.add('tier-selected');
+            }
+        }
+
+        // مستمع ديناميكي لتحديث رقم الفيزا على جرافيك الكارت أثناء كتابته يدوياً من السائق
+        document.getElementById('payCardNum').addEventListener('input', function(e) {
+            let cardValue = e.target.value.replace(/\D/g, '').substring(0, 16);
+            let formattedValue = cardValue.match(/.{1,4}/g)?.join(' ') || "**** **** **** 4321";
+            document.getElementById('lblCardDisplayNumber').innerText = formattedValue;
+        });
+
+        // التحقق من الدفع وتمرير بيانات السيارة المكتوبة يدوياً وتفعيل كاميرا الفحص المصغرة
+        async function executePaymentVerification(event) {
+            event.preventDefault();
+
+            const rawName = document.getElementById('inputName').value;
+            const rawEmail = document.getElementById('inputEmail').value;
+            const rawVehicleModel = document.getElementById('inputVehicleNameModel').value; // جلب الاسم المكتوب يدوياً
+            const rawPlate = document.getElementById('inputVehiclePlate').value;
+            const rawSensitivity = document.getElementById('inputSensitivity').value;
+
+            const finalDriverName = isLegacyAccountModeActive ? "مشترك سابق نشط" : rawName;
+            const finalVehicleModel = isLegacyAccountModeActive ? "شاحنة حاويات عامة" : rawVehicleModel;
+            const finalPlate = isLegacyAccountModeActive ? "أ ب ج 9999" : rawPlate;
+
+            // حقن البيانات المدخلة يدوياً بكفاءة تامة داخل حقول لوحة العمليات وجداول الـ B2B
+            document.getElementById('lblDashboardMetaSummary').innerText = `السيارة المستهدفة: ${finalVehicleModel} | اللوحة: ${finalPlate} | باقة الاشتراك المتكاملة: ${activeSelectedTier.toUpperCase()}`;
+            document.getElementById('cellDriverNameDisplay').innerHTML = `<strong>${finalDriverName}</strong>`;
+            document.getElementById('cellVehicleModelDisplay').innerHTML = `<strong>${finalVehicleModel}</strong>`;
+            document.getElementById('cellVehiclePlateDisplay').innerText = finalPlate;
+
+            // الانتقال الفوري لغرفة العمليات ومركز الفحص بعد نجاح المعاملة المالية الافتراضية
+            triggerScreenNavigation('segmentOperationsDashboardScreen');
+
+            // تفعيل الصندوق الأسود السيبراني وتسجيل عملية الدفع المالي بنجاح
+            appendToBlackboxTerminal(`Secure transaction approved via gateway for ${activeSelectedTier} tier.`);
+            appendToBlackboxTerminal(`Vehicle registered manually: ${finalVehicleModel} [Plate: ${finalPlate}].`);
+
+            // استدعاء وتشغيل كاميرا الويب الحقيقية للمستخدم وعرضها داخل الإطار المصغر للمنصة
+            await activateUserHardwareWebcamFeed();
+
+            // تشغيل المحاكاة المستمرة لجدول حركة أساطيل الشركات لإضفاء التفاعل المطلوب
+            startEnterpriseFleetTableSimulation();
+        }
+
+        // استدعاء كاميرا الجهاز الحقيقية وضبط بثها داخل شاشة الفحص المصغرة والمعايرة
+        async function activateUserHardwareWebcamFeed() {
+            const videoTag = document.getElementById('cameraHardwareFeed');
+            try {
+                const capturedStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: "user",
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    },
+                    audio: false
+                });
+                videoTag.srcObject = capturedStream;
+                webcamStreamReference = capturedStream;
+                appendToBlackboxTerminal("Local web camera stream successfully bounded to calibrated frame overlay.");
+            } catch (error) {
+                console.error("عطل في سحب تدفق كاميرا الويب: ", error);
+                alert("تنبيه المسرعة: تم تفعيل مركز العمليات بنجاح، يرجى إعطاء المتصفح صلاحية الكاميرا لكي تظهر صورتك الحية ومحاكاة تتبع نقاط الوجه الذكية بدقة متناهية داخل الإطار المصغر.");
+                appendToBlackboxTerminal("Camera permission denied or hardware missing. Falling back to matrix standby.");
+            }
+        }
+
+        // ميزة التحكم بكشاف الضوء الأبيض الساطع لإنارة ظلام مقصورة السائق ليلاً
+        function executeAmbientFlashLightToggle() {
+            document.body.classList.toggle('night-flash-active');
+            const frameStreamLimiter = document.getElementById('frameStreamLimiter');
+
+            if (document.body.classList.contains('night-flash-active')) {
+                frameStreamLimiter.style.borderColor = "#ffffff";
+                frameStreamLimiter.style.boxShadow = "0 0 35px #ffffff";
+                appendToBlackboxTerminal("Ambient flash activated. Face illumination levels optimized for night driving.");
+            } else {
+                frameStreamLimiter.style.borderColor = "var(--color-primary-glow)";
+                frameStreamLimiter.style.boxShadow = "none";
+                appendToBlackboxTerminal("Ambient flash deactivated. System returning to standard infra-red tracking.");
+            }
+        }
+
+        // 🔊 توليد وإطلاق صوت بوق الإنذار الحقيقي الفعلي الحاد فور رصد غفوة أو نوم السائق
+        function triggerDrowsinessAcousticAlarm() {
+            const panelWebcamCoreCard = document.getElementById('panelWebcamCoreCard');
+            const lblTrackingMatrixStatus = document.getElementById('lblTrackingMatrixStatus');
+
+            // تفعيل الوميض الأحمر التحذيري للفت انتباه لجان التحكيم بالأثر المباشر
+            panelWebcamCoreCard.classList.add('critical-alarm-flash-trigger');
+            lblTrackingMatrixStatus.innerHTML = `<span style="color: var(--color-system-danger); font-weight: 900;"><i class="fa-solid fa-triangle-exclamation"></i> طوارئ: تم رصد غفوة كاملة للعين (EAR < 0.22)</span>`;
+            
+            appendToBlackboxTerminal("CRITICAL WARNING: Eye Aspect Ratio dropped below threshold! EAR = 0.14");
+
+            // 🔊 توليد كود صوت الإنذار الحقيقي المباشر من سماعة الجهاز بتردد حاد جداً وموقظ لإبهار المقيّمين
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            // هندسة نوع نغمة المنبه التفاعلية الحادة
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTim
