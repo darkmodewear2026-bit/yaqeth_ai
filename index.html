@@ -323,12 +323,12 @@
 
         /* الحركات التحذيرية */
         .blinking-alert {
-            animation: alarmBlink 1s infinite alternate;
+            animation: alarmBlink 0.4s infinite alternate;
         }
 
         @keyframes alarmBlink {
-            0% { box-shadow: 0 0 5px var(--color-danger); border-color: var(--color-danger); }
-            100% { box-shadow: 0 0 25px var(--color-danger); border-color: var(--color-danger); }
+            0% { box-shadow: 0 0 5px var(--color-danger); border-color: var(--color-danger); background-color: rgba(255, 51, 102, 0.1); }
+            100% { box-shadow: 0 0 35px var(--color-danger); border-color: var(--color-danger); background-color: rgba(255, 51, 102, 0.3); }
         }
 
         .app-title-banner {
@@ -358,7 +358,7 @@
             <div class="auth-box">
                 <div class="auth-header">
                     <h2 id="authModeTitle">تسجيل سائق جديد (إنشاء حساب)</h2>
-                    <p id="authModeDesc">املأ تفاصيل رخصتك لتفعيل الفحص السيبراني المحلي للمركبة</p>
+                    <p id="authModeDesc">املأ تفاصيل رخصتك ومركبتك لتفعيل الفحص السيبراني المحلي</p>
                 </div>
 
                 <form id="mainIdentityForm" onsubmit="executeAuthentication(event)">
@@ -375,6 +375,16 @@
                     <div class="input-wrapper">
                         <i class="fa-solid fa-shield-halved"></i>
                         <input type="password" id="fieldPassword" placeholder="كلمة المرور الخاصة بالحساب" required>
+                    </div>
+
+                    <div class="input-wrapper" id="rowCarType">
+                        <i class="fa-solid fa-truck-moving"></i>
+                        <input type="text" id="fieldCarType" placeholder="نوع المركبة (مثال: شاحنة مرسيدس ACTROS / تويوتا)" required>
+                    </div>
+
+                    <div class="input-wrapper" id="rowCarPlate">
+                        <i class="fa-solid fa-rectangle-list"></i>
+                        <input type="text" id="fieldCarPlate" placeholder="رقم وم حروف اللوحة (مثال: أ ب ج 1234)" required>
                     </div>
 
                     <div class="input-wrapper" id="rowDriverLicense">
@@ -440,13 +450,13 @@
                         <h3><i class="fa-solid fa-truck-fleet" style="color: var(--color-secondary);"></i> مراقبة الأساطيل والربط اللوجستي للشركات</h3>
                         <span style="font-size: 0.75rem; background: rgba(0, 229, 255, 0.1); padding: 4px 10px; border-radius: 12px; color: var(--color-secondary);">Enterprise Mode</span>
                     </div>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">محاكاة تفاعلية فورية تظهر لغرف العمليات بالحاضنات كيف تراقب الشركات سائقيها تزامناً مع القيادة.</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">محاكاة تفاعلية فورية تظهر لغرف العمليات بالحاضنات كيف تراقب الشركات سائقيها تزامناً مع القيادة واللوحات المفعلة.</p>
 
                     <div class="data-table-container">
                         <table class="custom-data-table">
                             <thead>
                                 <tr>
-                                    <th>هوية المركبة</th>
+                                    <th>هوية ونوع المركبة</th>
                                     <th>القائد الحركي</th>
                                     <th>خط المسار اللوجستي</th>
                                     <th>حالة الانتباه الحالية</th>
@@ -454,29 +464,22 @@
                             </thead>
                             <tbody id="fleetTableBody">
                                 <tr>
-                                    <td><strong>شاحنة مرسيدس #9042</strong></td>
+                                    <td><strong id="cellCarInfo">شاحنة مرسيدس #9042</strong></td>
                                     <td id="cellCurrentDriver">جاري السحب...</td>
                                     <td>الرياض - ميناء جدة الإسلامي</td>
                                     <td><span class="status-badge badge-safe" id="cellCurrentStatus">🟢 آمن ومستيقظ</span></td>
-                                }
                                 </tr>
                                 <tr>
-                                    <td><strong>ناقلة نفط #1182</strong></td>
+                                    <td><strong>ناقلة فولفو (لوحة: ر س ط 8821)</strong></td>
                                     <td>عبد الله السبع</td>
                                     <td>الدمام - مصفاة الجبيل</td>
                                     <td><span class="status-badge badge-safe">🟢 آمن ومستيقظ</span></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>شاحنة تبريد #4401</strong></td>
+                                    <td><strong>شاحنة إيسوزو (لوحة: ن م ك 4410)</strong></td>
                                     <td>خالد محمد</td>
                                     <td>المدينة المنورة - تبوك</td>
                                     <td><span class="status-badge badge-danger blink">🔴 تحذير: رصد تثاؤب متكرر</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>حافلة ركاب #7701</strong></td>
-                                    <td>أحمد الشهري</td>
-                                    <td>مكة المكرمة - الطائف</td>
-                                    <td><span class="status-badge badge-warning">🟡 تشتت (انعدام النظر للطريق)</span></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -505,7 +508,7 @@
                         </div>
                         <div class="metric-box">
                             <div class="metric-value">100%</div>
-                            <div style="font-size: 0.85rem; color: var(--text-muted);">خصوصية البيانات (عدم تخزين أو رفع صور الوجه)</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">الخصوصية (تتم المعالجة والإنذار بالكامل محلياً)</div>
                         </div>
                     </div>
                     <p style="font-size: 0.85rem; line-height: 1.6; color: var(--text-muted); margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
@@ -542,6 +545,7 @@
         let legacyAccountMode = false;
         let mediaStreamInstance = null;
         let updateSimulationInterval = null;
+        let audioContextInstance = null;
 
         // تهيئة واجهات الربط لمكتبة التقارير الصادرة EmailJS عند اللزوم
         (function() {
@@ -572,7 +576,7 @@
                 document.getElementById('fieldLicense').required = false;
 
                 authModeTitle.innerText = "تسجيل الدخول لحساب سابق";
-                authModeDesc.innerText = "اكتب البريد الإلكتروني وكلمة المرور لاستعادة ترخيص باقتك القديمة فوراً";
+                authModeDesc.innerText = "اكتب البريد الإلكتروني، كلمة المرور، وتفاصيل السيارة لاستعادة ترخيص باقتك القديمة فوراً";
                 submitAuthBtn.innerText = "تحقق واستعادة الجلسة السابقة";
                 btnSwitchMode.innerText = "ليس لديك حساب؟ التبديل لإنشاء حساب مشترك جديد";
             } else {
@@ -585,7 +589,7 @@
                 document.getElementById('fieldLicense').required = true;
 
                 authModeTitle.innerText = "تسجيل سائق جديد (إنشاء حساب)";
-                authModeDesc.innerText = "املأ تفاصيل رخصتك لتفعيل الفحص السيبراني المحلي للمركبة";
+                authModeDesc.innerText = "املأ تفاصيل رخصتك ومركبتك لتفعيل الفحص السيبراني المحلي";
                 submitAuthBtn.innerText = "إنشاء الحساب وبدء التشغيل";
                 btnSwitchMode.innerText = "لديك حساب مشترك سابقاً؟ تسجيل الدخول المباشر";
             }
@@ -604,16 +608,19 @@
         async function executeAuthentication(event) {
             event.preventDefault();
 
-            // سحب البيانات المدخلة وتمريرها ديناميكياً للواجهات الفخمة
+            // سحب البيانات المدخلة وتمريرها ديناميكياً للواجهات الفخمة بما فيها السيارة واللوحة
             const driverNameInput = document.getElementById('fieldName').value;
             const driverEmailInput = document.getElementById('fieldEmail').value;
+            const carTypeInput = document.getElementById('fieldCarType').value;
+            const carPlateInput = document.getElementById('fieldCarPlate').value;
             const chosenSensitivity = document.getElementById('fieldSensitivity').value;
 
             const finalDriverName = legacyAccountMode ? "مشترك سابق نشط" : driverNameInput;
-            const targetMetaString = `البريد: ${driverEmailInput} | تهيئة النظام: ${chosenSensitivity}`;
+            const targetMetaString = `البريد: ${driverEmailInput} | نوع المركبة: ${carTypeInput} (اللوحة: ${carPlateInput})`;
 
             document.getElementById('txtActiveMeta').innerText = targetMetaString;
             document.getElementById('cellCurrentDriver').innerHTML = `<strong>${finalDriverName}</strong>`;
+            document.getElementById('cellCarInfo').innerHTML = `${carTypeInput} <br><span style="font-size:0.75rem; color:var(--color-secondary);">[ لوحة: ${carPlateInput} ]</span>`;
 
             // الانتقال الفوري لشاشة مركز العمليات
             switchToView('screenDashboard');
@@ -659,7 +666,7 @@
             }
         }
 
-        // محاكاة فورية لحالة النعاس الخطيرة وإصدار الإنذار الصوتي الحاد
+        // محاكاة فورية لحالة النعاس الخطيرة وإصدار الإنذار الصوتي الحاد (نظام سيارات حقيقي)
         function executeDrowsinessSimulation() {
             const cameraPanel = document.getElementById('cameraPanel');
             const statusIndicator = document.getElementById('lblCameraStatus');
@@ -668,27 +675,43 @@
             cameraPanel.classList.add('blinking-alert');
             statusIndicator.innerHTML = `<span style="color: var(--color-danger); font-weight: bold;"><i class="fa-solid fa-triangle-exclamation"></i> تم رصد حالة نوم فورية (EAR < 0.22)</span>`;
 
-            // توليد إنذار صوتي حاد ومستجيب من مكبر الصوت الخاص بالجهاز لإثبات فاعلية المنظومة
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillatorNode = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
+            // توليد إنذار صوتي حاد ومتقطع يحاكي أنظمة إنذار السيارات الذكية
+            if (!audioContextInstance) {
+                audioContextInstance = new (window.AudioContext || window.webkitAudioContext)();
+            }
 
-            oscillatorNode.type = 'sawtooth'; 
-            oscillatorNode.frequency.setValueAtTime(950, audioContext.currentTime); // تردد صوت حاد لتنبيه السائق
-            
-            gainNode.gain.setValueAtTime(0.7, audioContext.currentTime);
-            
-            oscillatorNode.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillatorNode.start();
+            // إطلاق نغمات متقطعة سريعة (Beep Beep Beep) لإنقاذ السائق
+            let beepCount = 0;
+            const beepInterval = setInterval(() => {
+                if (beepCount >= 6) { 
+                    clearInterval(beepInterval);
+                    return;
+                }
+                
+                const oscillatorNode = audioContextInstance.createOscillator();
+                const gainNode = audioContextInstance.createGain();
 
-            // إيقاف الإنذار الحاد تلقائياً وإرجاع المنظومة للاستقرار بعد ثانيتين
+                oscillatorNode.type = 'square'; // موجة حادة وقوية
+                oscillatorNode.frequency.setValueAtTime(1000, audioContextInstance.currentTime); // تردد مرتفع مزعج للتنبيه
+                
+                gainNode.gain.setValueAtTime(0.8, audioContextInstance.currentTime);
+                
+                oscillatorNode.connect(gainNode);
+                gainNode.connect(audioContextInstance.destination);
+                
+                oscillatorNode.start();
+                oscillatorNode.stop(audioContextInstance.currentTime + 0.15); // نبضة الإنذار مدتها 150 ملي ثانية
+                
+                beepCount++;
+            }, 300);
+
+            // إيقاف الإنذار الوميضي تلقائياً وإرجاع المنظومة للاستقرار بعد ثانيتين
             setTimeout(() => {
-                oscillatorNode.stop();
                 cameraPanel.classList.remove('blinking-alert');
                 statusIndicator.innerHTML = `<i class="fa-solid fa-circle" style="color: var(--color-success); font-size: 0.7rem;"></i> نظام تتبع ملامح الوجه مستقر`;
-            }, 2000);
+            }, 2200);
+
+            console.log("إشعار أمني: تم إطلاق إنذار النعاس الحركي وتسجيل بيانات لوحة السيارة بنجاح.");
         }
 
         // محاكاة ديناميكية متغيرة لجدول الشركات لإظهار أن البرنامج يعالج بيانات السائقين بشكل مستمر
