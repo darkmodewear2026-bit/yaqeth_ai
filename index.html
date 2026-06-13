@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yaqeth AI | يقظ - النسخة الكاملة</title>
+    <title>Yaqeth AI | يقظ - نسخة GitHub & Vercel</title>
     
-    <!-- استدعاء الخطوط وأيقونات الواجهة ومكتبة Supabase الرسمية -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
@@ -77,10 +76,8 @@
 </head>
 <body>
 
-    <!-- زر القائمة الجانبية -->
     <div class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
 
-    <!-- القائمة الجانبية -->
     <div class="sidebar" id="sidebar">
         <div class="close-btn" onclick="toggleSidebar()"><i class="fas fa-times"></i></div>
         <div class="menu-item">
@@ -93,7 +90,6 @@
         </div>
     </div>
 
-    <!-- الواجهة الأساسية للموقع -->
     <div class="welcome-screen">
         <h1 class="welcome-title">Yaqeth AI | يقظ</h1>
         <p class="welcome-text">
@@ -105,7 +101,6 @@
             <button class="btn-demo" id="demoBtn">تجربة الذكاء الاصطناعي الحي 👁️</button>
         </div>
 
-        <!-- حاوية الفحص ونظام الكاميرا والمؤشرات المضافة -->
         <div class="camera-container" id="cameraContainer">
             <div class="video-wrapper">
                 <video id="webcam" autoplay playsinline></video>
@@ -136,19 +131,16 @@
         </div>
     </div>
 
-    <!-- بوابة الأمان - نافذة تسجيل الدخول برمز OTP الحقيقي عبر Supabase -->
     <div class="login-modal" id="loginModal">
         <div class="login-box">
             <h3>بوابة الأمان | Yaqeth AI</h3>
-            <p id="loginInstructions">لحفظ حسابك وتأمين اشتراكاتك في باقات <strong>Yaqeth Pro</strong>، يرجى إدخال بريدك الإلكتروني لاستلاف رمز تحقق مباشر.</p>
+            <p id="loginInstructions">لحفظ حسابك وتأمين اشتراكاتك، يرجى إدخال بريدك الإلكتروني لاستلام رمز تحقق مباشر (OTP).</p>
             
-            <!-- مرحلة طلب البريد الإلكتروني -->
             <div id="emailSection">
                 <input type="email" class="login-input" id="loginEmail" placeholder="name@example.com" required>
                 <button type="button" class="btn-submit-login" id="sendOtpBtn">إرسال رمز التحقق الآمن</button>
             </div>
 
-            <!-- مرحلة إدخال كود الـ OTP المكون من 6 أرقام -->
             <div id="otpSection">
                 <input type="text" class="login-input" id="otpCode" placeholder="أدخل الرمز المكون من 6 أرقام" maxlength="6">
                 <button type="button" class="btn-submit-login" id="verifyOtpBtn">تأكيد الرمز والدخول للمنصة</button>
@@ -156,83 +148,67 @@
         </div>
     </div>
 
-    <!-- استدعاء ملف صوت التنبيه التلقائي (Audio Alert Siren) -->
     <audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" preload="auto" loop></audio>
 
     <script>
-        // إعدادات وتوابع النظام الجانبي
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
         const audioAlarm = document.getElementById('alertSound');
-
-        // ========================================================
-        //  إعدادات وتفعيل الربط الفعلي بقاعدة بيانات ومصادقة Supabase
-        // ========================================================
         
-        // ضع روابط مشروعك الحقيقي المنسوخ من لوحة تحكم Supabase هنا:
-        const SUPABASE_URL = "https://your-project-id.supabase.co"; // ضع الرابط هنا
-        const SUPABASE_ANON_KEY = "your-anon-key"; // ضع المفتاح هنا
-        
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let generatedOTP = ""; // لتخزين الرمز مؤقتاً ومقارنته
 
-        // 1. الضغط على زر إرسال رمز OTP الحقيقي للبريد الإلكتروني
-        document.getElementById('sendOtpBtn').addEventListener('click', async function() {
+        // ==========================================
+        //  إعدادات الـ EmailJS لـ GitHub & Vercel
+        // ==========================================
+        // افتح حساب مجاني في emailjs.com وضع مفاتيحك هنا لكي تصل الرسائل فوراً لبريدك
+        const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY"; 
+        const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID";
+        const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
+
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+
+        // 1. توليد وإرسال الرمز الحقيقي للبريد
+        document.getElementById('sendOtpBtn').addEventListener('click', function() {
             let email = document.getElementById('loginEmail').value.trim();
             
             if(email === "" || !email.includes("@")) {
-                alert("يرجى إدخال بريد إلكتروني صحيح ومكتمل لاستلام الرمز الفعلي!");
+                alert("يرجى إدخال بريد إلكتروني صحيح!");
                 return;
             }
 
-            document.getElementById('sendOtpBtn').innerText = "... جاري معالجة وإرسال الرمز الآمن";
+            document.getElementById('sendOtpBtn').innerText = "... جاري إرسال الرمز الآمن";
             
-            // طلب إرسال الرمز الحقيقي من خوادم Supabase إلى بريد المستخدم
-            let { data, error } = await supabaseClient.auth.signInWithOtp({
-                email: email,
-                options: {
-                    shouldCreateUser: true // ينشئ له حساباً جديداً تلقائياً إن لم يكن مسجلاً مسبقاً
-                }
-            });
+            // توليد رمز عشوائي مكون من 6 أرقام
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
 
-            if (error) {
-                alert("حدث خطأ في الاتصال بالخادم: " + error.message);
-                document.getElementById('sendOtpBtn').innerText = "إرسال رمز التحقق الآمن";
-            } else {
-                // نقل الواجهة إلى شاشة إدخال الكود المستلم
+            // إرسال الرمز عبر EmailJS مباشرة للمستخدم
+            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                to_email: email,
+                otp_code: generatedOTP
+            }).then(function() {
                 document.getElementById('emailSection').style.display = 'none';
                 document.getElementById('otpSection').style.display = 'block';
-                document.getElementById('loginInstructions').innerHTML = `تم إرسال رمز تحقق سري بنجاح إلى: <br><strong style="color:#00a86b;">${email}</strong>. يرجى مراجعة البريد الوارد أو مجلد الـ (Spam).`;
-            }
+                document.getElementById('loginInstructions').innerHTML = `تم إرسال رمز تحقق سري إلى: <br><strong style="color:#00a86b;">${email}</strong>.`;
+            }, function(error) {
+                // إذا لم تقم بتهيئة حساب EmailJS بعد، سيعمل كـ "محاكاة ذكية" لكي يفتح معك الموقع على Vercel بدون مشاكل
+                console.log("EmailJS Error, switching to Dev Mode. Code is: " + generatedOTP);
+                document.getElementById('emailSection').style.display = 'none';
+                document.getElementById('otpSection').style.display = 'block';
+                document.getElementById('loginInstructions').innerHTML = `[وضع التطوير] تم توليد رمز التحقق. أدخل الرمز التالي: <br><strong style="color:#00a86b;">${generatedOTP}</strong>`;
+            });
         });
 
-        // 2. الضغط على زر تأكيد الرمز المكون من 6 أرقام المبعوث للبريد
-        document.getElementById('verifyOtpBtn').addEventListener('click', async function() {
-            let email = document.getElementById('loginEmail').value.trim();
+        // 2. التحقق من الرمز والافتتاح طبيعي
+        document.getElementById('verifyOtpBtn').addEventListener('click', function() {
             let token = document.getElementById('otpCode').value.trim();
             
-            if(token.length !== 6) {
-                alert("يرجى كتابة الرمز المكون من 6 أرقام بالكامل!");
-                return;
-            }
-
-            document.getElementById('verifyOtpBtn').innerText = "... جاري التدقيق والتوثيق الآمن";
-
-            // فحص صحة الرمز المدخل عبر السيرفر
-            let { data, error } = await supabaseClient.auth.verifyOtp({
-                email: email,
-                token: token,
-                type: 'email'
-            });
-
-            if (error) {
-                alert("الرمز المكتوب غير صحيح أو قد انتهت صلاحيته المؤقتة: " + error.message);
-                document.getElementById('verifyOtpBtn').innerText = "تأكيد الرمز والدخول للمنصة";
+            if(token === generatedOTP) {
+                alert("تم التحقق بنجاح! مرحباً بك في Yaqeth AI");
+                document.getElementById('loginModal').style.display = 'none'; 
             } else {
-                alert("تم التوثيق والتحقق الثنائي بنجاح! تم فك تشفير وصولك لـ Yaqeth AI.");
-                document.getElementById('loginModal').style.display = 'none'; // فتح الموقع بالكامل
+                alert("الرمز غير صحيح، يرجى إعادة المحاولة!");
             }
         });
 
-        // لإظهار نافذة تسجيل الدخول عند الضغط على بدء التفعيل
         document.getElementById('startBtn').addEventListener('click', function() {
             document.getElementById('emailSection').style.display = 'block';
             document.getElementById('otpSection').style.display = 'none';
@@ -240,29 +216,27 @@
         });
 
         // ==========================================
-        //  تشغيل كاميرا الويب الحقيقية ونظام المحاكاة المطورة
+        //  تشغيل الكاميرا والمحاكاة الذكية المطورة
         // ==========================================
         document.getElementById('demoBtn').addEventListener('click', function() {
             document.getElementById('cameraContainer').style.display = 'flex';
             
-            // تفعيل جلب بث الكاميرا الحقيقي عبر الـ WebRTC API
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 navigator.mediaDevices.getUserMedia({ video: true })
                 .then(function(stream) {
                     let video = document.getElementById('webcam');
                     video.srcObject = stream;
                     video.play();
-                    startAdvancedSimulation(); // بدء عداد المحاكاة والتنبيهات الصوتية الحية
+                    startAdvancedSimulation();
                 })
                 .catch(function(error) {
-                    alert("نظام الفحص بحاجة إلى صلاحية الوصول للكاميرا للعمل المحلي.");
+                    alert("ميزة الكشف بحاجة لصلاحية الكاميرا للعمل محلياً.");
                 });
             } else {
-                alert("المتصفح الحالي لا يدعم فتح الكاميرات والبث الحي.");
+                alert("المتصفح لا يدعم بث الكاميرات المباشر.");
             }
         });
 
-        // دالة تشغيل نظام المؤشرات التفاعلي، النقاط، وإطلاق صافرات الإنذار الصوتية
         function startAdvancedSimulation() {
             let timerEl = document.getElementById('alertTimer');
             let statusEl = document.getElementById('driverStatus');
@@ -277,7 +251,6 @@
                 seconds++;
                 timerEl.innerText = seconds + " ثانية";
                 
-                // حالة رصد خطر النعاس: الأرقام التي تقبل القسمة على 10 (مثل ثانية 10، 20..)
                 if (seconds % 10 === 0) {
                     statusEl.innerText = "🚨 خطر: تم رصد إغلاق كامل ومستمر للعينين!";
                     statusEl.className = "status-danger";
@@ -286,16 +259,13 @@
                     aiBoxEl.style.borderColor = "#ef4444";
                     aiBoxEl.style.boxShadow = "0 0 25px #ef4444";
                     
-                    // خصم من نقاط القيادة الآمنة
                     currentPoints -= 15;
                     if(currentPoints < 0) currentPoints = 0;
                     pointsEl.innerText = currentPoints + " نقطة ⚠️";
                     pointsEl.style.color = "#ef4444";
                     
-                    // إطلاق صافرة الإنذار الصوتي الحادة لإيقاظ السائق
-                    audioAlarm.play().catch(e => console.log("Audio waiting for interaction"));
+                    audioAlarm.play().catch(e => console.log("Audio activation delayed"));
                 } 
-                // حالة استعادة الوعي والانتباه (بعدها بـ 4 ثواني تلقائياً)
                 else if (seconds % 10 === 4) {
                     statusEl.innerText = "مستيقظ ومتزن";
                     statusEl.className = "";
@@ -308,7 +278,6 @@
                     pointsEl.style.color = "#d97706";
                     pointsEl.innerText = currentPoints + " نقطة ⭐";
                     
-                    // إيقاف صافرة الإنذار الصوتية
                     audioAlarm.pause();
                     audioAlarm.currentTime = 0;
                 }
