@@ -1,5 +1,29 @@
-<div class="login-card-container">
-    <section class="window-panel-card" style="margin-bottom:30px;max-width:1100px;width:100%;">
+.pricing-card{
+    background: var(--bg-surface);
+    border-radius: 20px;
+    padding: 25px;
+    border-right: 5px solid var(--color-primary);
+    box-shadow: 0 10px 25px rgba(0,0,0,.4);
+}
+
+.pricing-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:20px;
+}
+
+.pricing-price{
+    font-size:2rem;
+    font-weight:800;
+    color:var(--color-primary);
+    margin:15px 0;
+}
+
+.pricing-feature{
+    margin:10px 0;
+    color:var(--text-darker);
+}<section class="window-panel-card" style="width:100%;margin-bottom:30px;">
+
     <div class="window-panel-header">
         <h3>
             <i class="fa-solid fa-crown"></i>
@@ -7,39 +31,46 @@
         </h3>
     </div>
 
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
+    <div class="pricing-grid">
 
-        <div class="metric-item-box">
-            <h2 style="color:var(--color-primary);">Yaqeth Plus</h2>
+        <div class="pricing-card">
 
-            <div class="metric-numeric">30 ر.س</div>
+            <h2>Yaqeth Plus</h2>
+
+            <div class="pricing-price">
+                30 ر.س
+            </div>
 
             <p>شهرياً للسائق الفردي</p>
 
             <hr style="margin:15px 0;opacity:.2;">
 
-            <p>✔ كشف النعاس</p>
-            <p>✔ تنبيهات فورية</p>
-            <p>✔ تتبع GPS</p>
-            <p>✔ تقييم سلامة السائق</p>
+            <div class="pricing-feature">✔ كشف النعاس</div>
+            <div class="pricing-feature">✔ تنبيهات فورية</div>
+            <div class="pricing-feature">✔ GPS</div>
+            <div class="pricing-feature">✔ Safety Score</div>
+
         </div>
 
-        <div class="metric-item-box">
-            <h2 style="color:var(--color-warning);">Yaqeth Pro</h2>
+        <div class="pricing-card">
 
-            <div class="metric-numeric">100 ر.س</div>
+            <h2>Yaqeth Pro</h2>
 
-            <p>لكل سائق / شهرياً</p>
+            <div class="pricing-price">
+                100 ر.س
+            </div>
+
+            <p>لكل سائق شهرياً</p>
 
             <hr style="margin:15px 0;opacity:.2;">
 
-            <p>✔ إدارة الأسطول</p>
-            <p>✔ تقارير أسبوعية</p>
-            <p>✔ تنبيهات للمشرفين</p>
-            <p>✔ لوحة تحكم الشركات</p>
-            <p>✔ تقييم المخاطر</p>
+            <div class="pricing-feature">✔ إدارة الأسطول</div>
+            <div class="pricing-feature">✔ تنبيهات للمشرفين</div>
+            <div class="pricing-feature">✔ تقارير أسبوعية</div>
+            <div class="pricing-feature">✔ Driver Risk Score</div>
+
         </div>
 
     </div>
-    </section>
-    
+
+</section>
